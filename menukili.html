@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kilimani Bistro • Authentic Kenyan Menu</title>
+
+  <style>
+    :root{
+      --primary:#8B4513;     /* Rich Brown */
+      --secondary:#DAA520;   /* Golden */
+      --accent:#228B22;      /* Forest Green */
+      --light:#FFF8DC;       /* Cream */
+      --dark:#1f2b2b;        /* Deep Charcoal */
+      --card:#ffffff;
+      --muted:#6b7280;
+      --ring:rgba(139,69,19,.18);
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+    body{
+      background: radial-gradient(1200px 800px at 20% 0%, rgba(218,165,32,.18) 0%, transparent 60%),
+                  radial-gradient(900px 700px at 100% 20%, rgba(34,139,34,.14) 0%, transparent 55%),
+                  linear-gradient(135deg, var(--light) 0%, #f5f5dc 100%);
+      color:var(--dark);
+      padding:16px;
+    }
+
+    .menu-container{
+      max-width:1200px;
+      margin:0 auto;
+      background:var(--card);
+      border-radius:22px;
+      box-shadow:0 18px 55px rgba(0,0,0,.10);
+      overflow:hidden;
+      border:8px solid var(--primary);
+    }
+
+    /* Header */
+    .menu-header{
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      color:#fff;
+      padding:28px 22px;
+      text-align:center;
+      position:relative;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      max-width:980px;
+      margin:0 auto 14px;
+    }
+
+    .brand-left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-align:left;
+      min-width: 260px;
+    }
+
+    .logo-badge{
+      width:64px;height:64px;border-radius:16px;
+      background: rgba(255,255,255,.16);
+      border:2px solid rgba(255,255,255,.35);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 10px 24px rgba(0,0,0,.18);
+      overflow:hidden;
+      backdrop-filter: blur(6px);
+      flex: 0 0 auto;
+    }
+
+    /* ✅ LOGO FIX (no stretching, no wide distortion) */
+    .logo-badge img{
+      width:52px;
+      height:52px;
+      object-fit:contain;
+      display:block;
+    }
+
+    .brand-meta .restaurant-name{
+      font-size:2.1rem;
+      font-weight:900;
+      letter-spacing:.5px;
+      line-height:1.05;
+      text-shadow: 0 2px 10px rgba(0,0,0,.22);
+      white-space: nowrap;
+    }
+    .brand-meta .tagline{
+      opacity:.92;
+      font-style:italic;
+      margin-top:6px;
+      font-size:.98rem;
+    }
+
+    .header-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .pill{
+      appearance:none;border:none;cursor:pointer;
+      padding:10px 12px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:.9rem;
+      background: rgba(255,255,255,.16);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.30);
+      display:inline-flex;align-items:center;gap:8px;
+      text-decoration:none;
+      transition: transform .15s ease, background .15s ease;
+      white-space: nowrap;
+    }
+    .pill:hover{transform:translateY(-1px);background: rgba(255,255,255,.22);}
+
+    .hero{
+      max-width:980px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:16px;
+      align-items:stretch;
+    }
+
+    .hero-card{
+      background: rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.22);
+      border-radius:18px;
+      padding:16px;
+      text-align:left;
+      box-shadow:0 12px 30px rgba(0,0,0,.16);
+      backdrop-filter: blur(8px);
+    }
+    .hero-card h2{
+      font-size:1.15rem;
+      margin-bottom:8px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .hero-card p{
+      opacity:.92;
+      line-height:1.45;
+      font-size:.95rem;
+    }
+
+    .hero-right{
+      background: rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.22);
+      border-radius:18px;
+      padding:14px;
+      box-shadow:0 12px 30px rgba(0,0,0,.16);
+      backdrop-filter: blur(8px);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      justify-content:space-between;
+    }
+
+    .quick-row{display:flex;gap:10px;flex-wrap:wrap;}
+
+    .search-wrap{
+      display:flex;gap:10px;align-items:center;
+      background: rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.25);
+      border-radius:14px;
+      padding:10px 12px;
+    }
+
+    .search-wrap input{
+      width:100%;
+      background:transparent;
+      border:none;
+      outline:none;
+      color:#fff;
+      font-weight:700;
+    }
+    .search-wrap input::placeholder{color:rgba(255,255,255,.75);}
+
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 12px;border-radius:14px;
+      background: rgba(218,165,32,.22);
+      border:1px solid rgba(255,255,255,.25);
+      font-weight:900;
+    }
+
+    /* Banner */
+    .seasonal-banner{
+      background: linear-gradient(90deg, var(--secondary), #ffd700);
+      color:var(--dark);
+      padding:12px 18px;
+      text-align:center;
+      font-weight:900;
+      font-size:1.05rem;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    /* Layout */
+    .menu-body{
+      display:grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 820px;
+    }
+
+    .categories-sidebar{
+      background: #fbfbfb;
+      padding:22px 16px 24px;
+      border-right: 3px dashed rgba(139,69,19,.55);
+    }
+
+    .category-list{list-style:none;position:sticky;top:18px;}
+    .category-item{margin-bottom:12px;}
+
+    .category-btn{
+      width:100%;
+      padding:14px 14px;
+      background:#fff;
+      border:2px solid rgba(139,69,19,.10);
+      border-radius:14px;
+      text-align:left;
+      font-size:1.02rem;
+      font-weight:900;
+      color:var(--dark);
+      cursor:pointer;
+      transition: all .25s ease;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      box-shadow:0 8px 20px rgba(0,0,0,.05);
+      white-space: nowrap;
+    }
+
+    .category-btn:hover,
+    .category-btn.active{
+      background: var(--primary);
+      color:#fff;
+      border-color: var(--primary);
+      transform: translateX(4px);
+      box-shadow:0 12px 28px rgba(139,69,19,.18);
+    }
+
+    .menu-content{padding:30px 26px 34px;}
+
+    .category-section{display:none;margin-bottom:36px;}
+    .category-section.active{display:block;animation: fadeIn .55s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    .category-title{
+      font-size:2.05rem;
+      color:var(--primary);
+      margin-bottom:18px;
+      padding-bottom:12px;
+      border-bottom: 3px solid rgba(218,165,32,.65);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      font-weight:950;
+    }
+    .category-title small{
+      font-size:.9rem;
+      color:rgba(31,43,43,.70);
+      font-weight:900;
+      background: rgba(218,165,32,.18);
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(218,165,32,.30);
+      white-space: nowrap;
+    }
+
+    .food-items{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap:18px;
+    }
+
+    .food-card{
+      background:#fff;
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 10px 26px rgba(0,0,0,.07);
+      border: 1px solid rgba(139,69,19,.10);
+      transition: transform .18s ease, box-shadow .18s ease;
+      position:relative;
+    }
+    .food-card:hover{transform:translateY(-6px);box-shadow:0 16px 36px rgba(0,0,0,.12);}
+
+    .food-image{
+      height:190px;
+      background:#eee;
+      background-size:cover;
+      background-position:center;
+      position:relative;
+    }
+
+    .food-price{
+      position:absolute;top:12px;right:12px;
+      background: rgba(218,165,32,.95);
+      color:var(--dark);
+      padding:8px 12px;
+      border-radius:999px;
+      font-weight:950;
+      font-size:1.05rem;
+      box-shadow:0 6px 14px rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.55);
+    }
+
+    .food-details{padding:16px 16px 14px;}
+    .food-name{font-size:1.22rem;font-weight:950;margin-bottom:8px;color:var(--dark);}
+    .food-description{color:rgba(31,43,43,.78);line-height:1.45;margin-bottom:12px;font-weight:650;}
+
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+    .chip{
+      font-size:.84rem;
+      font-weight:900;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(31,43,43,.12);
+      background:rgba(255,248,220,.75);
+    }
+
+    .card-actions{
+      display:flex;gap:10px;flex-wrap:wrap;
+      padding:0 16px 16px;
+    }
+
+    .btn{
+      flex:1;
+      min-width:140px;
+      appearance:none;border:none;cursor:pointer;
+      padding:12px 12px;
+      border-radius:14px;
+      font-weight:950;
+      font-size:.95rem;
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+      text-decoration:none;
+    }
+
+    .btn-primary{
+      background: var(--primary);
+      color:#fff;
+      box-shadow:0 12px 22px var(--ring);
+    }
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 16px 28px rgba(139,69,19,.22);}
+
+    .btn-ghost{
+      background:#fff;
+      color:var(--dark);
+      border:1px solid rgba(31,43,43,.14);
+    }
+    .btn-ghost:hover{transform:translateY(-1px);}
+
+    /* Cart drawer */
+    .drawer{
+      position:fixed;
+      top:0;right:-420px;
+      width:380px;max-width:92vw;height:100vh;
+      background:#fff;
+      box-shadow:-18px 0 44px rgba(0,0,0,.16);
+      border-left:4px solid rgba(139,69,19,.25);
+      transition:right .25s ease;
+      z-index:50;
+      display:flex;
+      flex-direction:column;
+    }
+    .drawer.open{right:0;}
+    .drawer-header{
+      padding:16px;
+      background: linear-gradient(90deg, rgba(139,69,19,.95), rgba(34,139,34,.92));
+      color:#fff;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+    }
+    .drawer-header h3{font-size:1.1rem;font-weight:950;}
+    .drawer-close{
+      appearance:none;border:none;cursor:pointer;
+      width:40px;height:40px;border-radius:12px;
+      background: rgba(255,255,255,.16);
+      color:#fff;font-size:1.2rem;font-weight:950;
+      border:1px solid rgba(255,255,255,.28);
+    }
+    .drawer-body{padding:14px 16px;overflow:auto;flex:1;}
+    .cart-item{
+      border:1px solid rgba(31,43,43,.10);
+      border-radius:14px;
+      padding:12px;
+      margin-bottom:10px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      box-shadow:0 10px 18px rgba(0,0,0,.04);
+    }
+    .cart-item strong{font-weight:950;}
+    .qty{display:flex;align-items:center;gap:8px;justify-content:flex-end;}
+    .qty button{
+      width:34px;height:34px;border-radius:12px;
+      border:1px solid rgba(31,43,43,.16);
+      background:#fff;cursor:pointer;font-weight:950;
+    }
+    .drawer-footer{
+      padding:16px;
+      border-top:1px solid rgba(31,43,43,.10);
+      background: rgba(255,248,220,.6);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .total-row{display:flex;align-items:center;justify-content:space-between;font-weight:950;}
+    .small{font-size:.88rem;color:rgba(31,43,43,.72);font-weight:750;line-height:1.35;}
+
+    /* Footer */
+    .footer-note{
+      text-align:center;
+      padding:22px 16px;
+      background: var(--dark);
+      color:#fff;
+    }
+    .footer-note .footer-highlight{color:var(--secondary);font-weight:950;}
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .hero{grid-template-columns:1fr; }
+      .menu-body{grid-template-columns: 1fr;}
+      .categories-sidebar{
+        border-right:none;
+        border-bottom:3px dashed rgba(139,69,19,.55);
+      }
+      .category-list{
+        display:flex;
+        gap:10px;
+        overflow-x:auto;
+        padding-bottom:8px;
+      }
+      .category-item{margin-bottom:0;flex-shrink:0;}
+      .category-btn{white-space:nowrap;}
+      .brand-meta .restaurant-name{font-size:1.85rem;}
+    }
+    @media (max-width: 520px){
+      .brand-left{gap:10px}
+      .logo-badge{width:56px;height:56px;border-radius:14px;}
+      .logo-badge img{width:46px;height:46px;}
+      .food-items{grid-template-columns:1fr;}
+      .pill{padding:9px 10px;font-size:.86rem;}
+      .menu-content{padding:20px 16px 26px;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="menu-container">
+    <header class="menu-header">
+      <div class="topbar">
+        <div class="brand-left">
+          <div class="logo-badge" aria-label="Kilimani Bistro Logo">
+            <img
+              src="https://res.cloudinary.com/dhziooosg/image/upload/v1769153272/logo_kk_eqoawz.png"
+              alt="Kilimani Bistro Logo"
+              onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;64&quot; height=&quot;64&quot; viewBox=&quot;0 0 64 64&quot;><rect width=&quot;64&quot; height=&quot;64&quot; fill=&quot;%23DAA520&quot;/><text x=&quot;32&quot; y=&quot;38&quot; font-family=&quot;Arial&quot; font-size=&quot;24&quot; fill=&quot;%238B4513&quot; text-anchor=&quot;middle&quot; font-weight=&quot;bold&quot;>KB</text></svg>';"
+            />
+          </div>
+          <div class="brand-meta">
+            <div class="restaurant-name">Kilimani Bistro</div>
+            <div class="tagline">Seasonal Specials • Custom Toppings • Kenyan Cuisine</div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <a class="pill" href="https://wa.me/254740940395?text=Hi%20Kilimani%20Bistro,%20I%20want%20to%20order%20from%20your%20menu." target="_blank" rel="noopener">
+            💬 WhatsApp Order
+          </a>
+          <button class="pill" id="openCartBtn" type="button">🧾 My Order</button>
+        </div>
+      </div>
+
+      <div class="hero">
+        <div class="hero-card">
+          <h2>Authentic Kenyan Flavors</h2>
+          <p>
+            Each dish shown with its actual food image. Customize toppings & choose your serving style.
+          </p>
+          <div class="chips" style="margin-top:12px">
+            <span class="chip">Correct Food Images</span>
+            <span class="chip">Custom Toppings</span>
+            <span class="chip">Choose Serving Style</span>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="search-wrap" title="Search items">
+            🔎 <input id="searchInput" type="search" placeholder="Search: biryani, pilau, nyama..." />
+          </div>
+          <div class="quick-row">
+            <span class="badge">🔥 Today's Pick: Goat Biryani + Fresh Juice Special</span>
+          </div>
+          <div class="quick-row">
+            <a class="pill" href="tel:+254740940395">📞 Call to Order</a>
+            <a class="pill" href="#nyama">🍖 View Nyama Choma</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="seasonal-banner">
+      <span>🌶️</span>
+      <span>SEASONAL SPECIALS AVAILABLE • CUSTOM TOPPINGS & OPTIONS • SERVING STYLE OF YOUR CHOICE</span>
+      <span>🌱</span>
+    </div>
+
+    <main class="menu-body">
+      <!-- Sidebar -->
+      <aside class="categories-sidebar">
+        <ul class="category-list">
+          <li class="category-item"><button class="category-btn active" data-category="breakfast">Breakfast ☕</button></li>
+          <li class="category-item"><button class="category-btn" data-category="appetizers">Starters 🥗</button></li>
+          <li class="category-item"><button class="category-btn" data-category="mains">Mains 🍛</button></li>
+          <li class="category-item"><button class="category-btn" data-category="nyama">Nyama Choma 🍖</button></li>
+          <li class="category-item"><button class="category-btn" data-category="swahili">Swahili 🌴</button></li>
+          <li class="category-item"><button class="category-btn" data-category="desserts">Desserts 🍰</button></li>
+          <li class="category-item"><button class="category-btn" data-category="drinks">Drinks 🥤</button></li>
+        </ul>
+      </aside>
+
+      <!-- Content -->
+      <section class="menu-content">
+        <!-- Breakfast -->
+        <div class="category-section active" id="breakfast" data-title="Breakfast">
+          <h2 class="category-title">Breakfast <small>7:00am – 11:00am</small></h2>
+          <div class="food-items">
+            <article class="food-card" data-name="Mandazi & Kenyan Tea" data-price="380">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1597318181409-cf64d0b5d8a2?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 380</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Mandazi & Kenyan Tea</h3>
+                <p class="food-description">Fresh mandazi triangles with spiced Kenyan chai.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Honey/Cinnamon</span>
+                  <span class="chip">Serving: 3/6 pieces</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Mandazi & Kenyan Tea" data-price="380">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Mandazi & Kenyan Tea" data-price="380">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Kenyan Farmer's Omelette" data-price="520">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 520</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Kenyan Farmer's Omelette</h3>
+                <p class="food-description">3-egg omelette with onions, tomatoes, capsicum.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Sausage/Cheese</span>
+                  <span class="chip">Serving: Skillet/Plate</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Kenyan Farmer's Omelette" data-price="520">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Kenyan Farmer's Omelette" data-price="520">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Full English Breakfast" data-price="750">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 750</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Full English Breakfast</h3>
+                <p class="food-description">Eggs, sausage, bacon, beans, tomato, mushrooms, toast.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Avocado/Hash Browns</span>
+                  <span class="chip">Serving: Plate/Platter</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Full English Breakfast" data-price="750">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Full English Breakfast" data-price="750">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Chapati & Beans Breakfast" data-price="450">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 450</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Chapati & Beans Breakfast</h3>
+                <p class="food-description">Soft chapati with Kenyan beans stew.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Avocado</span>
+                  <span class="chip">Serving: 2/4 chapatis</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Chapati & Beans Breakfast" data-price="450">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Chapati & Beans Breakfast" data-price="450">💬 WhatsApp</a>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Starters -->
+        <div class="category-section" id="appetizers" data-title="Starters">
+          <h2 class="category-title">Starters <small>Shareable</small></h2>
+          <div class="food-items">
+            <article class="food-card" data-name="Beef Samosas (6pc)" data-price="650">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 650</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Beef Samosas (6pc)</h3>
+                <p class="food-description">Crispy beef samosas with tamarind & chili dips.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Extra Sauce</span>
+                  <span class="chip">Serving: Platter/Basket</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Beef Samosas (6pc)" data-price="650">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Beef Samosas (6pc)" data-price="650">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Bhajia Plate" data-price="580">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 580</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Bhajia Plate</h3>
+                <p class="food-description">Spiced potato & onion fritters with tamarind chutney.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Yoghurt Dip</span>
+                  <span class="chip">Serving: Plate (8/12pc)</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Bhajia Plate" data-price="580">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Bhajia Plate" data-price="580">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Grilled Prawns" data-price="690">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1520236060906-2c34a36971b2?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 690</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Grilled Prawns</h3>
+                <p class="food-description">Jumbo prawns marinated in garlic & peri-peri.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Lemon Butter</span>
+                  <span class="chip">Serving: 2/4 Skewers</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Grilled Prawns" data-price="690">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Grilled Prawns" data-price="690">💬 WhatsApp</a>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Mains -->
+        <div class="category-section" id="mains" data-title="Mains">
+          <h2 class="category-title">Mains <small>Chef Recommended</small></h2>
+          <div class="food-items">
+            <article class="food-card" data-name="Chicken Biryani" data-price="950">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 950</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Chicken Biryani</h3>
+                <p class="food-description">Aromatic basmati rice layered with spiced chicken & potatoes.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Boiled Egg/Salad</span>
+                  <span class="chip">Serving: Pot/Plate</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Chicken Biryani" data-price="950">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Chicken Biryani" data-price="950">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Beef Pilau" data-price="850">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 850</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Beef Pilau</h3>
+                <p class="food-description">Fragrant rice cooked with tender beef & Kenyan spices.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Extra Meat/Raisins</span>
+                  <span class="chip">Serving: Plate/Family Pot</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Beef Pilau" data-price="850">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Beef Pilau" data-price="850">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Goat Biryani" data-price="1100">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1604908176997-125f25cc500f?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 1,100</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Goat Biryani</h3>
+                <p class="food-description">Tender goat meat cooked with fragrant rice & spices.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Extra Meat</span>
+                  <span class="chip">Serving: Family Size</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Goat Biryani" data-price="1100">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Goat Biryani" data-price="1100">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Chicken Curry" data-price="780">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 780</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Chicken Curry</h3>
+                <p class="food-description">Tender chicken in rich coconut curry sauce.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Extra Gravy</span>
+                  <span class="chip">Serving: With Rice/Chapati</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Chicken Curry" data-price="780">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Chicken Curry" data-price="780">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Grilled Tilapia" data-price="950">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1603360946369-dc9bb6258143?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 950</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Grilled Tilapia</h3>
+                <p class="food-description">Whole tilapia grilled with Kenyan spices.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Lemon/Garlic</span>
+                  <span class="chip">Serving: Whole/Fillet</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Grilled Tilapia" data-price="950">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Grilled Tilapia" data-price="950">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Chicken Burger + Fries" data-price="780">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 780</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Chicken Burger + Fries</h3>
+                <p class="food-description">Crispy chicken burger with lettuce & house sauce.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Cheese/Bacon</span>
+                  <span class="chip">Serving: Combo Meal</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Chicken Burger + Fries" data-price="780">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Chicken Burger + Fries" data-price="780">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Beef Stew" data-price="750">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 750</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Beef Stew</h3>
+                <p class="food-description">Tender beef in rich tomato-based stew with vegetables.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Extra Gravy</span>
+                  <span class="chip">Serving: With Ugali/Rice</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Beef Stew" data-price="750">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Beef Stew" data-price="750">💬 WhatsApp</a>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Nyama Choma -->
+        <div class="category-section" id="nyama" data-title="Nyama Choma">
+          <h2 class="category-title">Nyama Choma <small>Grilled to Order</small></h2>
+          <div class="food-items">
+            <article class="food-card" data-name="Goat Nyama Choma (½kg)" data-price="1200">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 1,200</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Goat Nyama Choma (½kg)</h3>
+                <p class="food-description">Tender goat meat slow-roasted over charcoal.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Kachumbari</span>
+                  <span class="chip">Serving: ½kg/1kg</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Goat Nyama Choma (½kg)" data-price="1200">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Goat Nyama Choma (½kg)" data-price="1200">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Beef Short Ribs" data-price="1350">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 1,350</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Beef Short Ribs</h3>
+                <p class="food-description">Juicy beef ribs marinated in traditional spices.</p>
+                <div class="chips">
+                  <span class="chip">Topping: BBQ Sauce</span>
+                  <span class="chip">Serving: ½kg/1kg</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Beef Short Ribs" data-price="1350">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Beef Short Ribs" data-price="1350">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Chicken Nyama Choma" data-price="1100">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 1,100</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Chicken Nyama Choma</h3>
+                <p class="food-description">Whole chicken marinated in lemon & herbs.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Lemon/Chili</span>
+                  <span class="chip">Serving: ½/Whole</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Chicken Nyama Choma" data-price="1100">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Chicken Nyama Choma" data-price="1100">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Pork Ribs" data-price="1250">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 1,250</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Pork Ribs</h3>
+                <p class="food-description">Succulent pork ribs with honey glaze.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Extra Glaze</span>
+                  <span class="chip">Serving: Full Rack</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Pork Ribs" data-price="1250">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Pork Ribs" data-price="1250">💬 WhatsApp</a>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Swahili -->
+        <div class="category-section" id="swahili" data-title="Swahili">
+          <h2 class="category-title">Swahili Dishes <small>Coastal Flavour</small></h2>
+          <div class="food-items">
+            <article class="food-card" data-name="Coconut Fish Stew" data-price="1150">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 1,150</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Coconut Fish Stew</h3>
+                <p class="food-description">Fish in rich coconut curry with rice.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Coconut Cream</span>
+                  <span class="chip">Serving: Bowl/Pot</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Coconut Fish Stew" data-price="1150">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Coconut Fish Stew" data-price="1150">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Chapati + Beans" data-price="520">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 520</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Chapati + Beans</h3>
+                <p class="food-description">Soft chapati served with flavorful beans stew.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Avocado</span>
+                  <span class="chip">Serving: 2/4 Chapatis</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Chapati + Beans" data-price="520">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Chapati + Beans" data-price="520">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Wali wa Nazi" data-price="680">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 680</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Wali wa Nazi</h3>
+                <p class="food-description">Coconut rice served with beef or chicken curry.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Fried Onions</span>
+                  <span class="chip">Serving: Plate/Bowl</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Wali wa Nazi" data-price="680">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Wali wa Nazi" data-price="680">💬 WhatsApp</a>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Desserts -->
+        <div class="category-section" id="desserts" data-title="Desserts">
+          <h2 class="category-title">Desserts <small>Sweet Finish</small></h2>
+          <div class="food-items">
+            <article class="food-card" data-name="Mandazi with Honey" data-price="480">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 480</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Mandazi with Honey</h3>
+                <p class="food-description">Freshly fried mandazi drizzled with honey.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Extra Honey</span>
+                  <span class="chip">Serving: 3/6 pieces</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Mandazi with Honey" data-price="480">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Mandazi with Honey" data-price="480">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Coconut Ice Cream" data-price="550">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 550</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Coconut Ice Cream</h3>
+                <p class="food-description">Homemade coconut ice cream with pineapple.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Chocolate Sauce</span>
+                  <span class="chip">Serving: Single/Double</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Coconut Ice Cream" data-price="550">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Coconut Ice Cream" data-price="550">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Chocolate Cake Slice" data-price="420">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 420</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Chocolate Cake Slice</h3>
+                <p class="food-description">Rich chocolate cake with moist crumb.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Whipped Cream</span>
+                  <span class="chip">Serving: Slice</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Chocolate Cake Slice" data-price="420">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Chocolate Cake Slice" data-price="420">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Fruit Salad Bowl" data-price="350">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 350</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Fruit Salad Bowl</h3>
+                <p class="food-description">Seasonal fruits with honey drizzle.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Honey/Yoghurt</span>
+                  <span class="chip">Serving: Small/Large</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Fruit Salad Bowl" data-price="350">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Fruit Salad Bowl" data-price="350">💬 WhatsApp</a>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Drinks -->
+        <div class="category-section" id="drinks" data-title="Drinks">
+          <h2 class="category-title">Drinks <small>Fresh & Cold</small></h2>
+          <div class="food-items">
+            <article class="food-card" data-name="Fresh Passion Juice" data-price="300">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1542444592-0d5995f7f0da?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 300</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Fresh Passion Juice</h3>
+                <p class="food-description">Fresh passion juice served chilled.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Mint/Ginger</span>
+                  <span class="chip">Serving: Glass/Jug</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Fresh Passion Juice" data-price="300">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Fresh Passion Juice" data-price="300">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Soda / Water" data-price="150">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 150</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Soda / Water</h3>
+                <p class="food-description">Coke, Fanta, Sprite, or bottled water.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Lemon/Lime</span>
+                  <span class="chip">Serving: Bottle/Glass</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Soda / Water" data-price="150">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Soda / Water" data-price="150">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Dawa Cocktail" data-price="320">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1511537190424-bbbab87ac5eb?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 320</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Dawa Cocktail</h3>
+                <p class="food-description">Kenyan special cocktail with honey, lime, vodka.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Extra Honey</span>
+                  <span class="chip">Serving: Single/Double</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Dawa Cocktail" data-price="320">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Dawa Cocktail" data-price="320">💬 WhatsApp</a>
+              </div>
+            </article>
+
+            <article class="food-card" data-name="Fresh Mango Juice" data-price="280">
+              <div class="food-image" style="background-image:url('https://images.unsplash.com/photo-1561047029-3000c68339ca?auto=format&fit=crop&w=600&q=80');">
+                <div class="food-price">KES 280</div>
+              </div>
+              <div class="food-details">
+                <h3 class="food-name">Fresh Mango Juice</h3>
+                <p class="food-description">Freshly squeezed mango juice, served chilled.</p>
+                <div class="chips">
+                  <span class="chip">Topping: Chia Seeds</span>
+                  <span class="chip">Serving: Glass/Jug</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn btn-primary addToCart" data-item="Fresh Mango Juice" data-price="280">➕ Add</button>
+                <a class="btn btn-ghost waOne" href="#" data-item="Fresh Mango Juice" data-price="280">💬 WhatsApp</a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer-note">
+      <p>All prices in <span class="footer-highlight">Kenyan Shillings (KES)</span>. Each dish shown with its actual food image.</p>
+      <p class="small" style="margin-top:8px;opacity:.9">
+        <strong>Seasonal Specials Available • Custom Toppings & Options • Serving Style of Your Choice</strong>
+      </p>
+    </footer>
+  </div>
+
+  <!-- Drawer -->
+  <aside class="drawer" id="cartDrawer" aria-hidden="true">
+    <div class="drawer-header">
+      <h3>My Order</h3>
+      <button class="drawer-close" id="closeCartBtn" type="button">✕</button>
+    </div>
+    <div class="drawer-body" id="cartItems">
+      <div class="small" style="text-align:center;padding:20px;color:var(--muted);">
+        Your cart is empty<br>Add items from the menu
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <div class="total-row"><span>Subtotal</span><span id="cartSubtotal">KES 0</span></div>
+      <div class="total-row"><span>Tax (16%)</span><span id="cartTax">KES 0</span></div>
+      <div class="total-row" style="font-size:1.1rem;border-top:1px solid rgba(31,43,43,.1);padding-top:8px;margin-top:4px;">
+        <strong>Total</strong><strong id="cartTotal">KES 0</strong>
+      </div>
+      <div class="small">All prices include 16% VAT. Add table number if dining in.</div>
+      <a class="btn btn-primary" id="sendOrderBtn" href="#" target="_blank" rel="noopener" style="pointer-events:none;opacity:.7;">💬 Send to WhatsApp</a>
+      <button class="btn btn-ghost" id="clearCartBtn" type="button">🗑️ Clear Cart</button>
+    </div>
+  </aside>
+
+  <script>
+    // ✅ CONFIGURATION
+    const WHATSAPP_NUMBER = "254740940395";
+    const RESTAURANT_NAME = "Kilimani Bistro";
+    const TAX_RATE = 0.16;
+
+    // Category Navigation
+    const categoryButtons = document.querySelectorAll(".category-btn");
+    const categorySections = document.querySelectorAll(".category-section");
+
+    function switchCategory(categoryId) {
+      categoryButtons.forEach(btn => btn.classList.remove("active"));
+      document.querySelector(`[data-category="${categoryId}"]`)?.classList.add("active");
+
+      categorySections.forEach(sec => {
+        sec.classList.remove("active");
+        if (sec.id === categoryId) sec.classList.add("active");
+      });
+
+      location.hash = "#" + categoryId;
+      window.scrollTo({ top: document.querySelector('.menu-content').offsetTop - 20, behavior: 'smooth' });
+    }
+
+    categoryButtons.forEach(btn => btn.addEventListener("click", () => switchCategory(btn.dataset.category)));
+
+    window.addEventListener('load', () => {
+      const hash = window.location.hash.substring(1);
+      if (hash && document.getElementById(hash)) switchCategory(hash);
+    });
+
+    // Search
+    const searchInput = document.getElementById("searchInput");
+    const allCards = [...document.querySelectorAll(".food-card")];
+
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.trim().toLowerCase();
+
+      if (!query) {
+        allCards.forEach(card => { card.style.display = ""; });
+        categorySections.forEach(section => { section.style.display = ""; });
+        return;
+      }
+
+      allCards.forEach(card => {
+        const name = (card.dataset.name || "").toLowerCase();
+        const desc = (card.querySelector(".food-description")?.textContent || "").toLowerCase();
+        const chips = Array.from(card.querySelectorAll(".chip")).map(chip => chip.textContent.toLowerCase()).join(" ");
+        const matches = name.includes(query) || desc.includes(query) || chips.includes(query);
+        card.style.display = matches ? "" : "none";
+      });
+
+      categorySections.forEach(section => {
+        const hasVisibleCards = Array.from(section.querySelectorAll('.food-card'))
+          .some(card => card.style.display !== 'none');
+        section.style.display = hasVisibleCards ? '' : 'none';
+      });
+    });
+
+    // Cart
+    let cart = new Map();
+
+    const cartDrawer = document.getElementById("cartDrawer");
+    const cartItemsEl = document.getElementById("cartItems");
+    const cartSubtotalEl = document.getElementById("cartSubtotal");
+    const cartTaxEl = document.getElementById("cartTax");
+    const cartTotalEl = document.getElementById("cartTotal");
+    const sendOrderBtn = document.getElementById("sendOrderBtn");
+    const clearCartBtn = document.getElementById("clearCartBtn");
+
+    document.getElementById("openCartBtn").addEventListener("click", openCart);
+    document.getElementById("closeCartBtn").addEventListener("click", closeCart);
+    clearCartBtn.addEventListener("click", clearCart);
+
+    function openCart() {
+      cartDrawer.classList.add("open");
+      cartDrawer.setAttribute("aria-hidden", "false");
+      renderCart();
+    }
+    function closeCart() {
+      cartDrawer.classList.remove("open");
+      cartDrawer.setAttribute("aria-hidden", "true");
+    }
+
+    document.querySelectorAll(".addToCart").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const itemName = this.dataset.item;
+        const price = parseInt(this.dataset.price, 10);
+        const card = this.closest('.food-card');
+        const chips = Array.from(card.querySelectorAll('.chip')).map(chip => chip.textContent).join(', ');
+        addToCart(itemName, price, chips);
+        openCart();
+
+        const originalText = this.innerHTML;
+        this.innerHTML = '✓ Added!';
+        this.style.background = 'var(--accent)';
+        setTimeout(() => { this.innerHTML = originalText; this.style.background = ''; }, 1000);
+      });
+    });
+
+    function addToCart(itemName, price, details='') {
+      const existing = cart.get(itemName);
+      if (existing) existing.quantity += 1;
+      else cart.set(itemName, { price, quantity: 1, details });
+      renderCart();
+    }
+
+    function formatKES(amount) { return 'KES ' + amount.toLocaleString('en-KE'); }
+
+    function renderCart() {
+      cartItemsEl.innerHTML = '';
+
+      if (cart.size === 0) {
+        cartItemsEl.innerHTML = `
+          <div style="text-align:center;padding:40px 20px;color:var(--muted);">
+            <div style="font-size:2rem;margin-bottom:10px;">🛒</div>
+            <div class="small">Your cart is empty</div>
+            <div class="small" style="margin-top:5px;">Add items from the menu</div>
+          </div>
+        `;
+        cartSubtotalEl.textContent = formatKES(0);
+        cartTaxEl.textContent = formatKES(0);
+        cartTotalEl.textContent = formatKES(0);
+        sendOrderBtn.style.pointerEvents = 'none';
+        sendOrderBtn.style.opacity = '0.7';
+        return;
+      }
+
+      let subtotal = 0;
+
+      cart.forEach((item, itemName) => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+
+        const cartItem = document.createElement('div');
+        cartItem.className = 'cart-item';
+        cartItem.innerHTML = `
+          <div>
+            <strong>${itemName}</strong>
+            ${item.details ? `<div class="small">${item.details}</div>` : ''}
+            <div class="small">${formatKES(item.price)} each</div>
+          </div>
+          <div class="qty">
+            <button type="button" data-action="decrease" data-item="${itemName}">−</button>
+            <div style="min-width:24px;text-align:center;font-weight:950">${item.quantity}</div>
+            <button type="button" data-action="increase" data-item="${itemName}">+</button>
+          </div>
+        `;
+        cartItemsEl.appendChild(cartItem);
+      });
+
+      cartItemsEl.querySelectorAll('[data-action="decrease"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const itemName = this.dataset.item;
+          const item = cart.get(itemName);
+          if (item.quantity > 1) item.quantity -= 1;
+          else cart.delete(itemName);
+          renderCart();
+        });
+      });
+
+      cartItemsEl.querySelectorAll('[data-action="increase"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const itemName = this.dataset.item;
+          const item = cart.get(itemName);
+          item.quantity += 1;
+          renderCart();
+        });
+      });
+
+      const tax = subtotal * TAX_RATE;
+      const total = subtotal + tax;
+
+      cartSubtotalEl.textContent = formatKES(subtotal);
+      cartTaxEl.textContent = formatKES(tax);
+      cartTotalEl.textContent = formatKES(total);
+
+      sendOrderBtn.style.pointerEvents = 'auto';
+      sendOrderBtn.style.opacity = '1';
+      updateWhatsAppLink();
+    }
+
+    function updateWhatsAppLink() {
+      let message = `Hi ${RESTAURANT_NAME}, I'd like to order:\n\n`;
+      let orderTotal = 0;
+
+      cart.forEach((item, itemName) => {
+        const itemTotal = item.price * item.quantity;
+        orderTotal += itemTotal;
+        message += `• ${itemName} x${item.quantity} - ${formatKES(itemTotal)}\n`;
+        if (item.details) message += `  (${item.details})\n`;
+      });
+
+      const tax = orderTotal * TAX_RATE;
+      const total = orderTotal + tax;
+
+      message += `\nSubtotal: ${formatKES(orderTotal)}`;
+      message += `\nTax (16%): ${formatKES(tax)}`;
+      message += `\nTOTAL: ${formatKES(total)}`;
+      message += `\n\nPlease include:\nName:\nPhone:\nTable # (if dining in):\nDelivery address (if delivery):\nSpecial instructions:`;
+
+      sendOrderBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    }
+
+    function clearCart() {
+      if (cart.size === 0) return;
+      if (confirm('Clear all items from cart?')) { cart.clear(); renderCart(); }
+    }
+
+    document.querySelectorAll(".waOne").forEach(link => {
+      link.addEventListener("click", function(e) {
+        e.preventDefault();
+        const itemName = this.dataset.item;
+        const price = parseInt(this.dataset.price, 10);
+        const card = this.closest('.food-card');
+        const chips = Array.from(card.querySelectorAll('.chip')).map(chip => chip.textContent).join(', ');
+
+        const message = `Hi ${RESTAURANT_NAME}, I'd like to order:\n\n` +
+          `• ${itemName} - ${formatKES(price)}\n` +
+          `${chips ? `(${chips})\n\n` : '\n'}` +
+          `Please include:\nName:\nPhone:\nTable # (if dining in):\nDelivery address (if delivery):`;
+
+        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+      });
+    });
+
+    renderCart();
+
+    document.addEventListener('click', (e) => {
+      if (cartDrawer.classList.contains('open') &&
+          !cartDrawer.contains(e.target) &&
+          !document.getElementById('openCartBtn').contains(e.target)) {
+        closeCart();
+      }
+    });
+  </script>
+</body>
+</html>
