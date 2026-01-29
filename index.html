@@ -410,6 +410,33 @@
       outline:none;
     }
     .table-status option{color:#111}
+    
+    /* PAYSTACK STYLES */
+    .paystack-processing {
+      text-align: center;
+      padding: 20px;
+    }
+    .paystack-processing .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .phone-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(16,20,21,.2);
+      border-radius: 10px;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 
@@ -521,16 +548,16 @@
       <h4 style="margin:0 0 10px 0;">Select Payment Method</h4>
 
       <div class="payment-options" id="paymentOptions">
-        <div class="payment-option" data-method="mpesa">
+        <div class="payment-option" data-method="paystack">
           <div class="icon">📱</div>
-          <div class="name">MPesa</div>
-          <div class="desc">Pay via MPesa</div>
+          <div class="name">M-Pesa STK Push</div>
+          <div class="desc">Auto-pay on phone</div>
         </div>
 
-        <div class="payment-option" data-method="ussd">
-          <div class="icon">📞</div>
-          <div class="name">USSD Auto-dial</div>
-          <div class="desc">Tap → M-Pesa opens</div>
+        <div class="payment-option" data-method="mpesa">
+          <div class="icon">💳</div>
+          <div class="name">MPesa Manual</div>
+          <div class="desc">Pay via MPesa</div>
         </div>
 
         <div class="payment-option" data-method="bank">
@@ -544,6 +571,53 @@
           <div class="name">Cash</div>
           <div class="desc">Pay at counter</div>
         </div>
+      </div>
+
+      <!-- Paystack STK Push Payment Details -->
+      <div class="payment-details hidden" id="paystackDetails">
+        <h4>M-Pesa STK Push Payment</h4>
+        
+        <div style="margin:20px 0;">
+          <label style="display:block; margin-bottom:8px; font-weight:700;">
+            M-Pesa Registered Phone
+          </label>
+          <input type="tel" id="paystackPhone" 
+                 placeholder="2547XXXXXXXX"
+                 class="phone-input"
+                 value="2547">
+          <p style="font-size:12px; color:#666; margin-top:5px;">
+            You'll receive an M-Pesa prompt on this phone
+          </p>
+        </div>
+        
+        <div style="background:#f0f9ff; border:1px solid #b6e0fe; border-radius:10px; padding:12px; margin:15px 0;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+            <span>Table:</span>
+            <strong id="paystackTable">--</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+            <span>Amount:</span>
+            <strong id="paystackAmount">KES 0</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span>Reference:</span>
+            <strong id="paystackReference">GS-ORDER-</strong>
+          </div>
+        </div>
+        
+        <div class="paystack-processing" id="paystackProcessing" style="display:none;">
+          <div class="spinner"></div>
+          <p>Sending payment request to your phone...</p>
+          <p style="font-size:12px;">Check your phone for M-Pesa PIN prompt</p>
+        </div>
+        
+        <button class="btn success" id="initiatePaystack" style="width:100%; padding:14px; font-size:16px;">
+          📱 Send Payment Request to Phone
+        </button>
+        
+        <p style="font-size:11px; color:#666; text-align:center; margin-top:15px;">
+          ⚡ Check your phone for M-Pesa PIN request
+        </p>
       </div>
 
       <!-- MPesa Payment Details -->
@@ -571,53 +645,6 @@
           💡 Use reference: <strong id="mpesaTable">--</strong>
         </p>
         <button class="btn success" id="confirmMpesa">I have paid via MPesa</button>
-      </div>
-
-      <!-- USSD Auto-dial Payment Details -->
-      <div class="payment-details hidden" id="ussdDetails">
-        <h4>USSD Auto-dial Payment</h4>
-        
-        <div style="margin:20px 0;">
-          <label style="display:block; margin-bottom:8px; font-weight:700;">
-            Your M-Pesa Registered Phone
-          </label>
-          <input type="tel" id="ussdPhone" 
-                 placeholder="2547XXXXXXXX"
-                 style="width:100%; padding:12px; border:1px solid rgba(16,20,21,.2); 
-                        border-radius:10px; font-size:15px;"
-                 value="2547">
-          <p style="font-size:12px; color:#666; margin-top:5px;">
-            Ensure this is your M-Pesa registered number
-          </p>
-        </div>
-        
-        <div style="background:#f0f9ff; border:1px solid #b6e0fe; border-radius:10px; padding:12px; margin:15px 0;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-            <span>Paybill:</span>
-            <strong>247247</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-            <span>Account:</span>
-            <strong id="ussdAccount">1460181232185</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-            <span>Amount:</span>
-            <strong id="ussdAmount">KES 0</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between;">
-            <span>Reference:</span>
-            <strong id="ussdReference">TABLE-</strong>
-          </div>
-        </div>
-        
-        <button class="btn success" id="dialUSSD" style="width:100%; padding:14px; font-size:16px;">
-          📞 Tap to Auto-dial M-Pesa
-        </button>
-        
-        <p style="font-size:11px; color:#666; text-align:center; margin-top:15px;">
-          ⚡ M-Pesa will open with amount pre-filled<br>
-          🔐 Just enter your M-Pesa PIN to complete payment
-        </p>
       </div>
 
       <!-- Bank Payment Details -->
@@ -726,23 +753,28 @@
 <script src="menu.js" defer></script>
 
 <script>
-/* ========= SIMPLE ORDER/PAYMENT + WHATSAPP ENRICHMENT LAYER =========
-   This layer:
-   - Requires table selection before checkout
-   - Captures payment method (mpesa/bank/cash)
-   - Generates order ID
-   - Builds WhatsApp message including Table + Payment + Items + Total
-   - Works alongside your existing menu.js cart rendering
+/* ========= PAYSTACK STK PUSH INTEGRATION =========
+   This layer integrates PayStack M-Pesa STK Push into your existing menu
+   - Customer enters phone → Gets PIN prompt
+   - Works with your existing cart system
 */
+
+// PAYSTACK CONFIGURATION - USE YOUR LIVE KEYS
+const PAYSTACK_CONFIG = {
+  // TEST KEYS (for testing)
+  // publicKey: "pk_test_929f9c92fa658760bb56bd96a63fa91619c94c3",
+  
+  // LIVE KEYS (for production - USE THESE)
+  publicKey: "pk_live_1aede7667d50adb2147614cb580a9513552c0aa9",
+  
+  restaurantName: "Golden Star Restaurant",
+  restaurantEmail: "orders@goldenstar.co.ke"
+};
 
 const CONFIG = {
   restaurantName: "Golden Star Restaurant",
-  // Change this to restaurant staff WhatsApp if you want customer to send to restaurant instead of self
-  // Example: "254702099927"
-  whatsappTo: "", // empty = send to customer (opens WhatsApp compose without recipient)
+  whatsappTo: "", 
   mpesaTill: "888555",
-
-  // Bank details (EDIT THESE)
   bankName: "KCB Bank",
   bankAccount: "0123456789",
   bankAccountName: "GOLDEN STAR RESTAURANT",
@@ -753,6 +785,20 @@ const fmtKES = (n) => `KES ${Number(n || 0).toLocaleString("en-KE")}`;
 
 let selectedPayment = "";
 let lastOrderPayload = null;
+let paystackInitialized = false;
+
+// Initialize Paystack
+function initPaystack() {
+  if (paystackInitialized) return;
+  
+  const script = document.createElement('script');
+  script.src = "https://js.paystack.co/v1/inline.js";
+  script.onload = () => {
+    console.log("Paystack loaded");
+    paystackInitialized = true;
+  };
+  document.head.appendChild(script);
+}
 
 function getTableLabel(){
   const v = el("tableNumber").value;
@@ -778,17 +824,18 @@ el("tableNumber").addEventListener("change", () => {
   el("currentTable").textContent = t || "No Table Selected";
   el("modalTable").textContent = `Table: ${t || "--"}`;
 
-  // Update MPesa/Bank/USSD refs
+  // Update refs
   const ref = t ? t.replace(/\s+/g,"-").toUpperCase() : "TABLE-";
   el("mpesaRef").textContent = ref;
   el("mpesaTable").textContent = ref;
   el("bankRef").textContent = ref;
   el("bankTable").textContent = ref;
   el("cashTable").textContent = t || "--";
-  el("ussdReference").textContent = ref;
+  el("paystackTable").textContent = t || "--";
+  el("paystackReference").textContent = `GS-${t ? t.replace(/\s+/g,"") : "ORDER"}-${Date.now().toString().slice(-6)}`;
 });
 
-/* ---- Cart modal open/close (if menu.js already handles, this won't break) ---- */
+/* ---- Cart modal open/close ---- */
 el("openCart").addEventListener("click", () => el("cartModal").classList.add("open"));
 el("closeCart").addEventListener("click", () => el("cartModal").classList.remove("open"));
 el("closePayment").addEventListener("click", () => el("paymentModal").classList.remove("open"));
@@ -798,6 +845,7 @@ el("proceedToPayment").addEventListener("click", () => {
   el("cartModal").classList.remove("open");
   el("paymentModal").classList.add("open");
   refreshAmountsInPaymentPanels();
+  initPaystack(); // Initialize Paystack when payment modal opens
 });
 
 /* ---- Payment method selection ---- */
@@ -808,7 +856,7 @@ document.querySelectorAll(".payment-option").forEach(opt => {
     selectedPayment = opt.dataset.method;
 
     // show relevant panel
-    ["mpesa","bank","cash","ussd"].forEach(m => {
+    ["mpesa","bank","cash","paystack"].forEach(m => {
       el(m + "Details").classList.add("hidden");
     });
     el(selectedPayment + "Details").classList.remove("hidden");
@@ -852,12 +900,12 @@ function refreshAmountsInPaymentPanels(){
   el("cashAmount").textContent = fmtKES(total);
   el("cashTable").textContent = t || "--";
 
-  // USSD amounts
-  el("ussdAmount").textContent = fmtKES(total);
-  el("ussdReference").textContent = t ? t.replace(/\s+/g,"-").toUpperCase() : "TABLE-";
+  // Paystack amounts
+  el("paystackAmount").textContent = fmtKES(total);
+  el("paystackTable").textContent = t || "--";
 }
 
-/* ---- Get cart info (expects your menu.js keeps state; fallback tries window.cart) ---- */
+/* ---- Get cart info (compatible with your menu.js) ---- */
 function getCartItems(){
   // If your menu.js stores cart in window.CART or window.cart, this will work.
   const c = window.CART || window.cart || [];
@@ -916,15 +964,15 @@ function buildWhatsAppMessage(payload){
   ].join("\n");
 }
 
-/* ---- USSD Auto-dial Function ---- */
-el("dialUSSD").addEventListener("click", function() {
-  const phone = el("ussdPhone").value.trim();
+/* ========= PAYSTACK STK PUSH INTEGRATION ========= */
+el("initiatePaystack").addEventListener("click", function() {
+  const phone = el("paystackPhone").value.trim();
   const amount = getCartTotal();
   const table = getTableLabel();
   
   if (!phone.match(/^2547\d{8}$/)) {
-    alert("Please enter valid Kenyan phone (2547XXXXXXXX)");
-    el("ussdPhone").focus();
+    alert("Please enter valid Kenyan phone number (2547XXXXXXXX)");
+    el("paystackPhone").focus();
     return;
   }
   
@@ -938,27 +986,75 @@ el("dialUSSD").addEventListener("click", function() {
     return;
   }
   
-  // Create USSD code for M-Pesa Buy Goods
-  // Format: *433*3*Paybill*Amount*Account#
-  const ussdCode = `*433*3*247247*${amount}*1460181232185#`;
+  if (!paystackInitialized) {
+    alert("Payment system is loading. Please try again in a moment.");
+    return;
+  }
   
-  // Create and trigger tel link
-  const telLink = document.createElement('a');
-  telLink.href = `tel:${ussdCode}`;
-  telLink.style.display = 'none';
-  document.body.appendChild(telLink);
-  telLink.click();
-  document.body.removeChild(telLink);
+  // Show processing
+  el("paystackProcessing").style.display = "block";
+  el("initiatePaystack").disabled = true;
+  el("initiatePaystack").textContent = "Processing...";
   
-  // Show confirmation message
-  alert(`M-Pesa will open with:\nPaybill: 247247\nAmount: KES ${amount}\nAccount: 1460181232185\n\nEnter your M-Pesa PIN to complete payment.`);
+  // Generate unique reference
+  const reference = `GS-${table.replace(/\s+/g,"")}-${Date.now().toString().slice(-6)}`;
   
-  // Auto-confirm payment after a delay (simulating completion)
-  setTimeout(() => {
-    if (confirm("Have you entered your M-Pesa PIN?\n\nClick OK to confirm payment.")) {
-      finalizeOrder("M-Pesa (USSD Auto-dial)");
+  // Initialize Paystack payment
+  const handler = PaystackPop.setup({
+    key: PAYSTACK_CONFIG.publicKey,
+    email: PAYSTACK_CONFIG.restaurantEmail,
+    amount: amount * 100, // Paystack expects amount in kobo/cents
+    currency: "KES",
+    ref: reference,
+    metadata: {
+      custom_fields: [
+        {
+          display_name: "Table",
+          variable_name: "table",
+          value: table
+        },
+        {
+          display_name: "Phone",
+          variable_name: "phone",
+          value: phone
+        }
+      ]
+    },
+    channels: ['mobile_money'],
+    callback: function(response) {
+      // Payment successful
+      el("paystackProcessing").style.display = "none";
+      el("initiatePaystack").disabled = false;
+      el("initiatePaystack").textContent = "📱 Send Payment Request to Phone";
+      
+      // Store payment reference for record
+      window.paymentReference = response.reference;
+      window.paymentConfirmed = true;
+      
+      // Finalize the order
+      finalizeOrder("M-Pesa STK Push");
+    },
+    onClose: function() {
+      // Payment cancelled
+      el("paystackProcessing").style.display = "none";
+      el("initiatePaystack").disabled = false;
+      el("initiatePaystack").textContent = "📱 Send Payment Request to Phone";
+      
+      if (!window.paymentConfirmed) {
+        alert("Payment was cancelled. You can try again.");
+      }
     }
-  }, 5000);
+  });
+  
+  // Open Paystack modal with phone pre-filled for M-Pesa
+  handler.openIframe();
+  
+  // Set timeout to reset button
+  setTimeout(() => {
+    el("paystackProcessing").style.display = "none";
+    el("initiatePaystack").disabled = false;
+    el("initiatePaystack").textContent = "📱 Send Payment Request to Phone";
+  }, 30000); // 30 second timeout
 });
 
 /* ---- Confirm order handlers (MPesa/Bank/Cash) ---- */
@@ -994,7 +1090,7 @@ function finalizeOrder(paymentLabel){
   el("successPayment").textContent = payload.paymentLabel;
 }
 
-el("confirmMpesa").addEventListener("click", () => finalizeOrder("MPesa"));
+el("confirmMpesa").addEventListener("click", () => finalizeOrder("MPesa Manual"));
 el("confirmBank").addEventListener("click", () => finalizeOrder("Bank Transfer"));
 el("confirmCash").addEventListener("click", () => finalizeOrder("Cash"));
 
@@ -1005,7 +1101,6 @@ el("sendWhatsApp").addEventListener("click", () => {
   const msg = buildWhatsAppMessage(lastOrderPayload);
   const encoded = encodeURIComponent(msg);
 
-  // If CONFIG.whatsappTo is set => sends to restaurant/staff
   const to = (CONFIG.whatsappTo || "").replace(/\D/g,"");
   const url = to
     ? `https://wa.me/${to}?text=${encoded}`
@@ -1026,7 +1121,10 @@ el("newOrder").addEventListener("click", () => {
   el("summary").textContent = "No items yet";
   el("count").textContent = "0";
   el("checkoutBtn").disabled = true;
-  el("ussdPhone").value = "2547"; // Reset phone number
+  el("paystackPhone").value = "2547";
+  
+  // Reset payment confirmation
+  window.paymentConfirmed = false;
 });
 
 /* ---- Minimum enforcement: disable checkout until table + items ---- */
@@ -1035,21 +1133,22 @@ function tick(){
   const hasTable = !!getTableLabel();
   el("checkoutBtn").disabled = !(hasItems && hasTable);
   
-  // Update USSD button text with amount
-  const ussdBtn = el("dialUSSD");
-  if (ussdBtn) {
+  // Update Paystack button text with amount
+  const paystackBtn = el("initiatePaystack");
+  if (paystackBtn) {
     const amount = getCartTotal();
-    ussdBtn.textContent = amount > 0 
-      ? `📞 Tap to Pay KES ${amount.toLocaleString()} via M-Pesa`
-      : `📞 Tap to Auto-dial M-Pesa`;
+    paystackBtn.textContent = amount > 0 
+      ? `📱 Pay KES ${amount.toLocaleString()} via M-Pesa`
+      : `📱 Send Payment Request to Phone`;
   }
   
   requestAnimationFrame(tick);
 }
 tick();
 
-/* ---- Initialize USSD details ---- */
+/* ---- Initialize ---- */
 refreshAmountsInPaymentPanels();
+initPaystack(); // Initialize Paystack on page load
 </script>
 </body>
 </html>
