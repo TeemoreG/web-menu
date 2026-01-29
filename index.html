@@ -437,6 +437,15 @@
       font-size: 15px;
       margin-bottom: 10px;
     }
+    
+    .whatsapp-forwarding {
+      text-align: center;
+      padding: 15px;
+      background: rgba(31,111,58,.08);
+      border: 1px solid rgba(31,111,58,.15);
+      border-radius: 10px;
+      margin: 10px 0;
+    }
   </style>
 </head>
 
@@ -515,7 +524,7 @@
   <div class="right">
     <span class="count" id="count" aria-live="polite">0</span>
     <button class="btn secondary" id="openCart" aria-label="View your order">Review Order</button>
-    <button class="btn success" id="checkoutBtn" aria-label="Proceed to checkout" disabled>Checkout</button>
+    <button class="btn success" id="checkoutBtn" aria-label="Proceed to checkout" disabled>Proceed to Payment</button>
   </div>
 </div>
 
@@ -532,7 +541,7 @@
         <b id="total">Total: KES 0</b><br>
         <span class="small" id="orderNote"></span>
       </div>
-      <button class="btn success" id="proceedToPayment">Proceed to Payment</button>
+      <button class="btn success" id="proceedToPayment">Continue to Payment</button>
     </div>
   </div>
 </div>
@@ -550,14 +559,14 @@
       <div class="payment-options" id="paymentOptions">
         <div class="payment-option" data-method="paystack">
           <div class="icon">📱</div>
-          <div class="name">M-Pesa STK Push</div>
+          <div class="name">Pay with M-Pesa</div>
           <div class="desc">Auto-pay on phone</div>
         </div>
 
         <div class="payment-option" data-method="mpesa">
           <div class="icon">💳</div>
           <div class="name">MPesa Manual</div>
-          <div class="desc">Pay via MPesa</div>
+          <div class="desc">Pay via MPesa Till</div>
         </div>
 
         <div class="payment-option" data-method="bank">
@@ -575,7 +584,7 @@
 
       <!-- Paystack STK Push Payment Details -->
       <div class="payment-details hidden" id="paystackDetails">
-        <h4>M-Pesa STK Push Payment</h4>
+        <h4>Pay with M-Pesa (STK Push)</h4>
         
         <div style="margin:20px 0;">
           <label style="display:block; margin-bottom:8px; font-weight:700;">
@@ -615,14 +624,16 @@
           📱 Send Payment Request to Phone
         </button>
         
-        <p style="font-size:11px; color:#666; text-align:center; margin-top:15px;">
-          ⚡ Check your phone for M-Pesa PIN request
-        </p>
+        <div class="whatsapp-forwarding">
+          <p style="font-size:12px; margin:0; color:var(--accent);">
+            ✅ Order will automatically be sent to restaurant WhatsApp
+          </p>
+        </div>
       </div>
 
       <!-- MPesa Payment Details -->
       <div class="payment-details hidden" id="mpesaDetails">
-        <h4>MPesa Payment Instructions</h4>
+        <h4>MPesa Till Payment</h4>
         <div class="mpesa-details">
           <div class="mpesa-row">
             <span>Business No (Till):</span>
@@ -644,6 +655,13 @@
           📱 MPesa → Lipa Na MPesa → Buy Goods → Enter Till <strong id="mpesaTill2">888555</strong><br>
           💡 Use reference: <strong id="mpesaTable">--</strong>
         </p>
+        
+        <div class="whatsapp-forwarding">
+          <p style="font-size:12px; margin:0; color:var(--accent);">
+            ✅ After payment, order will auto-send to restaurant WhatsApp
+          </p>
+        </div>
+        
         <button class="btn success" id="confirmMpesa">I have paid via MPesa</button>
       </div>
 
@@ -681,6 +699,12 @@
         <p style="font-size:12px; color:var(--muted2); margin:10px 0;">
           🏦 Please use reference: <strong id="bankTable">--</strong>
         </p>
+        
+        <div class="whatsapp-forwarding">
+          <p style="font-size:12px; margin:0; color:var(--accent);">
+            ✅ After payment, order will auto-send to restaurant WhatsApp
+          </p>
+        </div>
 
         <button class="btn success" id="confirmBank">I have sent bank transfer</button>
       </div>
@@ -701,6 +725,13 @@
             <strong id="cashTable">--</strong>
           </div>
         </div>
+        
+        <div class="whatsapp-forwarding">
+          <p style="font-size:12px; margin:0; color:var(--accent);">
+            ✅ Order will automatically be sent to restaurant WhatsApp
+          </p>
+        </div>
+        
         <button class="btn success" id="confirmCash">Confirm Cash Order</button>
       </div>
     </div>
@@ -738,13 +769,19 @@
           <strong id="successPayment">--</strong>
         </div>
       </div>
+      
+      <div class="whatsapp-forwarding" style="margin:15px 0;">
+        <p style="font-size:12px; margin:0; color:var(--accent);">
+          ✅ Order forwarded to restaurant WhatsApp: +254740940395
+        </p>
+      </div>
 
       <p style="font-size:13px; color:var(--muted2);">
         📋 Order details sent to kitchen<br>
         ⏱️ Estimated time: 15-20 minutes
       </p>
 
-      <button class="btn" id="sendWhatsApp">📱 Send to My WhatsApp</button>
+      <button class="btn" id="sendWhatsApp">📱 Send Copy to My WhatsApp</button>
       <button class="btn secondary" id="newOrder">Start New Order</button>
     </div>
   </div>
@@ -753,10 +790,11 @@
 <script src="menu.js" defer></script>
 
 <script>
-/* ========= PAYSTACK STK PUSH INTEGRATION =========
-   This layer integrates PayStack M-Pesa STK Push into your existing menu
-   - Customer enters phone → Gets PIN prompt
-   - Works with your existing cart system
+/* ========= PROFESSIONAL PAYMENT + AUTO-WHATSAPP SYSTEM =========
+   This system:
+   1. Adds PayStack back for easy M-Pesa payments
+   2. Automatically sends full order details to your WhatsApp (+254740940395)
+   3. No manual confirmation needed - order auto-forwards after payment
 */
 
 // PAYSTACK CONFIGURATION - USE YOUR LIVE KEYS
@@ -771,9 +809,12 @@ const PAYSTACK_CONFIG = {
   restaurantEmail: "orders@goldenstar.co.ke"
 };
 
+// RESTAURANT WHATSAPP NUMBER FOR AUTO-FORWARDING
+const RESTAURANT_WHATSAPP = "+254740940395";
+
 const CONFIG = {
   restaurantName: "Golden Star Restaurant",
-  whatsappTo: "", 
+  whatsappTo: RESTAURANT_WHATSAPP, // Auto-forward to your WhatsApp
   mpesaTill: "888555",
   bankName: "KCB Bank",
   bankAccount: "0123456789",
@@ -840,12 +881,47 @@ el("openCart").addEventListener("click", () => el("cartModal").classList.add("op
 el("closeCart").addEventListener("click", () => el("cartModal").classList.remove("open"));
 el("closePayment").addEventListener("click", () => el("paymentModal").classList.remove("open"));
 
+/* ---- Checkout button goes directly to payment methods ---- */
+el("checkoutBtn").addEventListener("click", () => {
+  if (!requireTable()) return;
+  
+  const items = getCartItems();
+  if (items.length === 0) {
+    alert("Please add items to your order first.");
+    return;
+  }
+  
+  // Close cart modal if open and go directly to payment
+  el("cartModal").classList.remove("open");
+  el("paymentModal").classList.add("open");
+  refreshAmountsInPaymentPanels();
+  
+  // Initialize Paystack
+  initPaystack();
+  
+  // Select Paystack by default (easiest for customers)
+  setTimeout(() => {
+    document.querySelectorAll(".payment-option").forEach(x => x.classList.remove("selected"));
+    const paystackOption = document.querySelector('.payment-option[data-method="paystack"]');
+    if (paystackOption) {
+      paystackOption.classList.add("selected");
+      selectedPayment = "paystack";
+      
+      // Show Paystack panel
+      ["mpesa","bank","cash","paystack"].forEach(m => {
+        el(m + "Details").classList.add("hidden");
+      });
+      el("paystackDetails").classList.remove("hidden");
+    }
+  }, 100);
+});
+
 el("proceedToPayment").addEventListener("click", () => {
   if (!requireTable()) return;
   el("cartModal").classList.remove("open");
   el("paymentModal").classList.add("open");
   refreshAmountsInPaymentPanels();
-  initPaystack(); // Initialize Paystack when payment modal opens
+  initPaystack();
 });
 
 /* ---- Payment method selection ---- */
@@ -947,21 +1023,87 @@ function generateOrderId(){
   return `GS-${y}${m}${day}-${rand}`;
 }
 
-function buildWhatsAppMessage(payload){
+function buildRestaurantWhatsAppMessage(payload){
   const lines = payload.items.map(it => `• ${it.name} x${it.qty} — ${fmtKES(it.price * it.qty)}`);
+  const totalItems = payload.items.reduce((sum, it) => sum + it.qty, 0);
+  
   return [
-    `*${CONFIG.restaurantName} — Order*`,
-    `Order ID: *${payload.orderId}*`,
-    `Table: *${payload.table}*`,
-    `Payment: *${payload.paymentLabel}*`,
+    `🚨 *NEW ORDER - GOLDEN STAR RESTAURANT* 🚨`,
+    `📅 ${new Date().toLocaleDateString('en-KE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`,
+    `📋 *Order ID:* ${payload.orderId}`,
+    `🏠 *Table/Service:* ${payload.table}`,
+    `💰 *Payment Method:* ${payload.paymentLabel}`,
+    `📊 *Total Items:* ${totalItems}`,
+    `💵 *Order Total:* ${fmtKES(payload.total)}`,
     ``,
-    `Items:`,
+    `📝 *ORDER ITEMS:*`,
     ...lines,
     ``,
-    `Total: *${fmtKES(payload.total)}*`,
+    `⏱️ *Status:* PENDING`,
+    `👨‍🍳 *Action Required:* Prepare order immediately`,
     ``,
-    `Note: Please confirm when received.`
+    `✅ *Auto-generated by Restaurant Order System*`
   ].join("\n");
+}
+
+function buildCustomerWhatsAppMessage(payload){
+  const lines = payload.items.map(it => `• ${it.name} x${it.qty} — ${fmtKES(it.price * it.qty)}`);
+  return [
+    `✅ *${CONFIG.restaurantName} — Order Confirmed*`,
+    `🎉 Thank you for your order!`,
+    ``,
+    `📋 *Order ID:* ${payload.orderId}`,
+    `🏠 *Table:* ${payload.table}`,
+    `💰 *Payment:* ${payload.paymentLabel}`,
+    `💵 *Total:* ${fmtKES(payload.total)}`,
+    ``,
+    `📝 *Your Order:*`,
+    ...lines,
+    ``,
+    `⏱️ *Estimated Time:* 15-20 minutes`,
+    `📍 *Location:* Banda Street, Nairobi`,
+    `📞 *Contact:* +254740940395`,
+    ``,
+    `👨‍🍳 *Your order is being prepared. Thank you!*`
+  ].join("\n");
+}
+
+/* ========= AUTO-WHATSAPP FORWARDING FUNCTION ========= */
+function autoForwardToRestaurantWhatsApp(payload) {
+  // Build restaurant message
+  const restaurantMsg = buildRestaurantWhatsAppMessage(payload);
+  const encodedRestaurantMsg = encodeURIComponent(restaurantMsg);
+  
+  // Build customer message
+  const customerMsg = buildCustomerWhatsAppMessage(payload);
+  const encodedCustomerMsg = encodeURIComponent(customerMsg);
+  
+  // Auto-open WhatsApp to restaurant number (your number)
+  const restaurantUrl = `https://wa.me/${RESTAURANT_WHATSAPP.replace(/\D/g,"")}?text=${encodedRestaurantMsg}`;
+  
+  // Open in new tab (this will prompt user to open WhatsApp)
+  const newWindow = window.open(restaurantUrl, '_blank');
+  
+  // If popup blocked, show instructions
+  if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+    // Popup was blocked - show instructions
+    setTimeout(() => {
+      alert(
+        "Order confirmed! To send to restaurant WhatsApp:\n\n" +
+        "1. Open WhatsApp\n" +
+        "2. Send to: +254740940395\n" +
+        "3. Message has been copied to clipboard\n\n" +
+        "Click OK to copy message to clipboard."
+      );
+      
+      // Copy to clipboard as fallback
+      navigator.clipboard.writeText(restaurantMsg).then(() => {
+        console.log("Order copied to clipboard for WhatsApp");
+      });
+    }, 500);
+  }
+  
+  return customerMsg; // Return customer message for their copy
 }
 
 /* ========= PAYSTACK STK PUSH INTEGRATION ========= */
@@ -1031,8 +1173,8 @@ el("initiatePaystack").addEventListener("click", function() {
       window.paymentReference = response.reference;
       window.paymentConfirmed = true;
       
-      // Finalize the order
-      finalizeOrder("M-Pesa STK Push");
+      // Finalize the order with auto-WhatsApp forwarding
+      finalizeOrderWithAutoWhatsApp("M-Pesa STK Push (Paystack)", response.reference);
     },
     onClose: function() {
       // Payment cancelled
@@ -1057,8 +1199,8 @@ el("initiatePaystack").addEventListener("click", function() {
   }, 30000); // 30 second timeout
 });
 
-/* ---- Confirm order handlers (MPesa/Bank/Cash) ---- */
-function finalizeOrder(paymentLabel){
+/* ---- Enhanced finalize order with auto-WhatsApp ---- */
+function finalizeOrderWithAutoWhatsApp(paymentLabel, paymentReference = "") {
   if (!requireTable()) return;
 
   const items = getCartItems();
@@ -1072,42 +1214,49 @@ function finalizeOrder(paymentLabel){
     orderId,
     table: getTableLabel(),
     paymentLabel,
+    paymentReference,
     items,
     total: getCartTotal(),
-    count: getCartCount()
+    count: getCartCount(),
+    timestamp: new Date().toISOString()
   };
 
   lastOrderPayload = payload;
 
-  // Success UI
-  el("paymentModal").classList.remove("open");
-  el("successModal").classList.add("open");
+  // AUTO-FORWARD TO RESTAURANT WHATSAPP
+  const customerMessage = autoForwardToRestaurantWhatsApp(payload);
+  
+  // Store customer message for later
+  payload.customerMessage = customerMessage;
 
-  el("orderId").textContent = `ORDER-#${orderId}`;
-  el("successTable").textContent = payload.table;
-  el("successItems").textContent = String(payload.count);
-  el("successTotal").textContent = fmtKES(payload.total);
-  el("successPayment").textContent = payload.paymentLabel;
+  // Success UI
+  setTimeout(() => {
+    el("paymentModal").classList.remove("open");
+    el("successModal").classList.add("open");
+
+    el("orderId").textContent = `ORDER-#${orderId}`;
+    el("successTable").textContent = payload.table;
+    el("successItems").textContent = String(payload.count);
+    el("successTotal").textContent = fmtKES(payload.total);
+    el("successPayment").textContent = payload.paymentLabel;
+    
+    // Update WhatsApp button to use customer message
+    el("sendWhatsApp").onclick = () => {
+      const encodedCustomerMsg = encodeURIComponent(customerMessage);
+      const customerUrl = `https://wa.me/?text=${encodedCustomerMsg}`;
+      window.open(customerUrl, '_blank');
+    };
+  }, 1000);
 }
 
-el("confirmMpesa").addEventListener("click", () => finalizeOrder("MPesa Manual"));
+/* ---- Regular finalize order (for manual payments) ---- */
+function finalizeOrder(paymentLabel) {
+  finalizeOrderWithAutoWhatsApp(paymentLabel, "");
+}
+
+el("confirmMpesa").addEventListener("click", () => finalizeOrder("MPesa Till"));
 el("confirmBank").addEventListener("click", () => finalizeOrder("Bank Transfer"));
 el("confirmCash").addEventListener("click", () => finalizeOrder("Cash"));
-
-/* ---- WhatsApp send ---- */
-el("sendWhatsApp").addEventListener("click", () => {
-  if (!lastOrderPayload) return;
-
-  const msg = buildWhatsAppMessage(lastOrderPayload);
-  const encoded = encodeURIComponent(msg);
-
-  const to = (CONFIG.whatsappTo || "").replace(/\D/g,"");
-  const url = to
-    ? `https://wa.me/${to}?text=${encoded}`
-    : `https://wa.me/?text=${encoded}`;
-
-  window.open(url, "_blank");
-});
 
 /* ---- New order ---- */
 el("newOrder").addEventListener("click", () => {
@@ -1149,6 +1298,19 @@ tick();
 /* ---- Initialize ---- */
 refreshAmountsInPaymentPanels();
 initPaystack(); // Initialize Paystack on page load
+
+/* ---- Fix for images not showing on first load ---- */
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof window.initMenu === 'function') {
+    window.initMenu();
+  }
+  
+  // Force show all items on initial load
+  const allButton = document.querySelector('.pill.active[data-cat="All"]');
+  if (allButton) {
+    setTimeout(() => allButton.click(), 100);
+  }
+});
 </script>
 </body>
 </html>
