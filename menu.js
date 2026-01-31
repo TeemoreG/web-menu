@@ -11,26 +11,26 @@ const RESTAURANT_CONFIG = {
 // =============== IMAGE MAPPING SYSTEM ===============
 const IMAGE_MAP = {
     // Breakfast items
-    "breakfast_farmers_omelette": "https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=1200&h=900&fit=crop",
-    "breakfast_samosa_6_pcs": "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=1200&h=900&fit=crop",
-    "breakfast_mandazi_3_pcs": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=1200&h=900&fit=crop",
-    "breakfast_pancakes_3_pcs": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=1200&h=900&fit=crop",
-    "breakfast_french_toast": "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=1200&h=900&fit=crop",
-    "breakfast_spanish_omelette": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=1200&h=900&fit=crop",
-    "breakfast_boiled_eggs_2": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=1200&h=900&fit=crop",
-    "breakfast_scrambled_eggs": "https://i.ibb.co/9HDtFDtd/JF-241160-Creamy-Cottage-Cheese-Scrambled-4x3-12902-619d00dc88594ea9b8ed884a108db16d.jpg",
-    "breakfast_eggs_sausage": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=1200&h=900&fit=crop",
-    "breakfast_sausage_2_pcs": "https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?w=1200&h=900&fit=crop",
-    "breakfast_smokies_2_pcs": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200&h=900&fit=crop",
-    "breakfast_chapati_2_pcs": "https://images.unsplash.com/photo-1582034986517-30d163aa1da9?w=1200&h=900&fit=crop",
-    "breakfast_chapati_tea": "https://images.unsplash.com/photo-1561047029-3000c68339ca?w=1200&h=900&fit=crop",
-    "breakfast_bhajia_plate": "https://images.unsplash.com/photo-1629115916083-7a5c19d3d1c5?w=1200&h=900&fit=crop",
-    "breakfast_toast_jam": "https://images.unsplash.com/photo-1481070555726-e2fe8357725c?w=1200&h=900&fit=crop",
-    "breakfast_fruit_salad_cup": "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=1200&h=900&fit=crop",
-    "breakfast_oat_porridge": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1200&h=900&fit=crop",
-    "breakfast_uji_power_porridge": "https://images.unsplash.com/photo-1515446134809-993c501ca304?w=1200&h=900&fit=crop",
-    "breakfast_full_breakfast_plate": "https://images.unsplash.com/photo-1559215440-3e3c5c75c6a8?w=1200&h=900&fit=crop",
-    "breakfast_beans_chapati": "https://images.unsplash.com/photo-1582034986517-30d163aa1da9?w=1200&h=900&fit=crop",
+    "breakfast_farmers_omelette": "https://i.ibb.co/0pTPZ3Nm/4190bf33-4a7c-4d56-901d-3bca9c688965.jpg",
+"breakfast_samosa_6_pcs": "https://i.ibb.co/YFWNMS6C/7-1024x1024.webp",
+"breakfast_mandazi_3_pcs": "https://i.ibb.co/xK5vG5yQ/soft-mandazi-recipe.jpg",
+"breakfast_pancakes_3_pcs": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=1200&h=900&fit=crop",
+"breakfast_french_toast": "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=1200&h=900&fit=crop",
+"breakfast_spanish_omelette": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=1200&h=900&fit=crop",
+"breakfast_boiled_eggs_2": "https://i.ibb.co/kgWXnSQF/air-fryer-hard-boiled-eggs-4.jpg",
+"breakfast_scrambled_eggs": "https://i.ibb.co/9HDtFDtd/JF-241160-Creamy-Cottage-Cheese-Scrambled-4x3-12902-619d00dc88594ea9b8ed884a108db16d.jpg",
+"breakfast_eggs_sausage": "https://i.ibb.co/Z1cWYPrG/breakfast-eggs-sausage-hash-bacon.webp",
+"breakfast_sausage_2_pcs": "https://i.ibb.co/LhgXPFwJ/Rodriguez-Traditional-Spanish-Chorizo3-605507ec-6eaa-457f-ad5d-ae387b1d719a.webp",
+"breakfast_smokies_2_pcs": "https://i.ibb.co/Rn3R0gC/Hawaiian-Litl-Smokies-7.jpg",
+"breakfast_chapati_2_pcs": "https://i.ibb.co/dsdvc6zZ/photo.jpg",
+"breakfast_chapati_tea": "https://images.unsplash.com/photo-1561047029-3000c68339ca?w=1200&h=900&fit=crop",
+"breakfast_bhajia_plate": "https://images.unsplash.com/photo-1629115916083-7a5c19d3d1c5?w=1200&h=900&fit=crop",
+"breakfast_toast_jam": "https://images.unsplash.com/photo-1481070555726-e2fe8357725c?w=1200&h=900&fit=crop",
+"breakfast_fruit_salad_cup": "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=1200&h=900&fit=crop",
+"breakfast_oat_porridge": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1200&h=900&fit=crop",
+"breakfast_uji_power_porridge": "https://images.unsplash.com/photo-1515446134809-993c501ca304?w=1200&h=900&fit=crop",
+"breakfast_full_breakfast_plate": "https://images.unsplash.com/photo-1559215440-3e3c5c75c6a8?w=1200&h=900&fit=crop",
+"breakfast_beans_chapati": "https://images.unsplash.com/photo-1582034986517-30d163aa1da9?w=1200&h=900&fit=crop",
     
     // Lunch items
     "lunch_chicken_biryani": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=1200&h=900&fit=crop",
@@ -860,3 +860,4 @@ if (document.readyState === 'loading') {
     init();
 
 }
+
