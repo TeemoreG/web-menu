@@ -2,7 +2,7 @@
 // RESTAURANT CONFIGURATION
 const RESTAURANT_CONFIG = {
     name: "Golden Star Restaurant",
-    whatsappNumber: "254740940395", // Updated to match HTML
+    whatsappNumber: "254740940395",
     imageBaseUrl: "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/images/",
     fallbackImage: "https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=1200&h=900&fit=crop&crop=center"
 };
@@ -617,7 +617,7 @@ const items = [
 ];
 
 // =============== APPLICATION STATE ===============
-let cartItems = []; // Now using array format compatible with HTML
+let cartItems = [];
 let activeCat = "All";
 let searchTerm = "";
 
@@ -661,13 +661,9 @@ function addToCart(itemId) {
         });
     }
 
-    // Update the global cart in the HTML
-    if (window.cart && typeof window.cart.addItem === 'function') {
-        window.cart.addItem({
-            id: item.id,
-            name: item.name,
-            price: item.price
-        });
+    // Update the global cart UI
+    if (window.updateCartUI) {
+        window.updateCartUI();
     }
     
     renderMenu();
@@ -684,9 +680,9 @@ function removeFromCart(itemId) {
             cartItems.splice(index, 1);
         }
         
-        // Update the global cart in the HTML
-        if (window.cart && typeof window.cart.removeItem === 'function') {
-            window.cart.removeItem(itemId);
+        // Update the global cart UI
+        if (window.updateCartUI) {
+            window.updateCartUI();
         }
         
         renderMenu();
@@ -696,10 +692,11 @@ function removeFromCart(itemId) {
 
 function clearCart() {
     cartItems = [];
-    if (window.cart && typeof window.cart.clear === 'function') {
-        window.cart.clear();
+    if (window.updateCartUI) {
+        window.updateCartUI();
     }
     renderMenu();
+    showToast("Cart cleared");
 }
 
 function getFilteredItems() {
@@ -848,7 +845,7 @@ function setupEventListeners() {
             }, 300);
         });
         
-        // Clear search button (optional)
+        // Clear search button
         const searchClear = document.createElement('button');
         searchClear.innerHTML = '×';
         searchClear.style.cssText = `
@@ -896,28 +893,21 @@ function initMenu() {
     // Initial render
     renderMenu();
     
-    // Sync with HTML cart system
-    if (window.cart && window.cart.getItems) {
-        const htmlCartItems = window.cart.getItems();
-        if (htmlCartItems && htmlCartItems.length > 0) {
-            cartItems = htmlCartItems.map(item => ({
-                id: item.id,
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity || 1
-            }));
-        }
+    // Initial cart UI update
+    if (window.updateCartUI) {
+        window.updateCartUI();
     }
     
     console.log('Menu initialized successfully');
 }
 
 // =============== EXPOSE FUNCTIONS TO WINDOW ===============
-// Make functions available to the HTML script
 window.initMenu = initMenu;
 window.clearCart = clearCart;
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
 
-// For backward compatibility with original HTML
+// For backward compatibility with payment system
 window.getCartItems = () => cartItems.map(item => ({
     name: item.name,
     price: item.price,
@@ -930,8 +920,7 @@ window.getCartCount = () => cartItems.reduce((count, item) => count + item.quant
 
 // =============== START APPLICATION ===============
 // Wait for DOM to be fully loaded
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initMenu);
-} else {
-    initMenu();
-}
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for HTML payment system to load first
+    setTimeout(initMenu, 100);
+});
