@@ -1,13 +1,20 @@
-// =============== CONFIGURATION SECTION ===============
-// RESTAURANT CONFIGURATION
-const RESTAURANT_CONFIG = {
-    name: "Golden Star Restaurant",
-    whatsappNumber: "254740940395",
-    imageBaseUrl: "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/images/",
-    fallbackImage: "https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=1200&h=900&fit=crop&crop=center"
+// menu.js - FINAL CORRECTED VERSION WITH YOUR 64 ITEMS
+// ========= GOLDEN STAR RESTAURANT MENU =========
+
+// RESTAURANT WHATSAPP NUMBER
+const RESTAURANT_WHATSAPP = "+254740940395";
+
+// CONFIGURATION
+const CONFIG = {
+    restaurantName: "Golden Star Restaurant",
+    whatsappTo: RESTAURANT_WHATSAPP,
+    mpesaTill: "888555",
+    bankName: "KCB Bank",
+    bankAccount: "0123456789",
+    bankAccountName: "GOLDEN STAR RESTAURANT",
 };
 
-// =============== IMAGE MAPPING SYSTEM ===============
+// IMAGE MAPPING - Your original image URLs
 const IMAGE_MAP = {
     // Breakfast items
     "breakfast_farmers_omelette": "https://i.ibb.co/0pTPZ3Nm/4190bf33-4a7c-4d56-901d-3bca9c688965.jpg",
@@ -84,8 +91,8 @@ const IMAGE_MAP = {
     "drinks_passion_lemonade": "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=1200&h=900&fit=crop"
 };
 
-// =============== MENU ITEMS ===============
-const items = [
+// YOUR ORIGINAL 64 MENU ITEMS - Exactly as you provided
+const MENU_ITEMS = [
     {
         id: "breakfast_farmers_omelette",
         cat: "Breakfast",
@@ -616,127 +623,524 @@ const items = [
     }
 ];
 
-// =============== APPLICATION STATE ===============
-let cartItems = [];
-let activeCat = "All";
-let searchTerm = "";
+// Helper functions
+const el = (id) => document.getElementById(id);
+const fmtKES = (n) => `KES ${Number(n || 0).toLocaleString("en-KE")}`;
 
-// =============== UTILITY FUNCTIONS ===============
-function money(n) { 
-    return "KES " + Number(n).toLocaleString("en-KE"); 
-}
+// Cart State
+let cart = JSON.parse(localStorage.getItem('goldenStarCart')) || [];
+let currentFilter = 'All';
+let currentSearch = '';
 
+// Image helper
 function getImageUrl(itemId) {
-    if (IMAGE_MAP[itemId]) {
-        return IMAGE_MAP[itemId];
-    }
-    
-    const item = items.find(it => it.id === itemId);
-    if (item) {
-        return `https://source.unsplash.com/1200x900/?${encodeURIComponent(item.name)},food`;
-    }
-    
-    return RESTAURANT_CONFIG.fallbackImage;
+    return IMAGE_MAP[itemId] || "https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=1200&h=900&fit=crop&crop=center";
 }
 
-function getItemQuantity(itemId) {
-    const item = cartItems.find(item => item.id === itemId);
-    return item ? item.quantity : 0;
+// Menu Display Functions
+function renderMenuItems() {
+    const grid = el('grid');
+    if (!grid) return;
+    
+    // Hide loading state
+    const loadingState = el('loadingState');
+    if (loadingState) loadingState.style.display = 'none';
+    
+    // Filter items
+    let filteredItems = MENU_ITEMS;
+    
+    if (currentFilter !== 'All') {
+        filteredItems = filteredItems.filter(item => item.cat === currentFilter);
+    }
+    
+    if (currentSearch) {
+        const searchTerm = currentSearch.toLowerCase();
+        filteredItems = filteredItems.filter(item => 
+            item.name.toLowerCase().includes(searchTerm) ||
+            item.bullets.some(bullet => bullet.toLowerCase().includes(searchTerm)) ||
+            item.tag.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    // Render items
+    if (filteredItems.length === 0) {
+        grid.innerHTML = `
+            <div class="empty-state">
+                <div class="icon">🔍</div>
+                <h3>No items found</h3>
+                <p>Try a different search or filter</p>
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = filteredItems.map(item => {
+        const cartItem = cart.find(ci => ci.id === item.id);
+        const quantity = cartItem ? cartItem.quantity : 0;
+        const imageUrl = getImageUrl(item.id);
+        
+        return `
+            <div class="card">
+                <img src="${imageUrl}" alt="${item.name}" class="bg" loading="lazy">
+                <div class="shade"></div>
+                <div class="overlay">
+                    <div class="topline">
+                        <div>
+                            <div class="name">${item.name}</div>
+                            <div class="meta">
+                                <span class="tag">${item.tag}</span>
+                            </div>
+                        </div>
+                        <div class="price">${fmtKES(item.price)}</div>
+                    </div>
+                    
+                    <div class="bottom">
+                        <ul class="bullets">
+                            ${item.bullets.map(bullet => `<li>${bullet}</li>`).join('')}
+                        </ul>
+                        <div class="row">
+                            <div>
+                                <div class="small">${quantity > 0 ? `In cart: ${quantity}` : "Ready to order"}</div>
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                ${quantity > 0 ? `
+                                    <button class="iconBtn remove-from-cart" data-id="${item.id}" aria-label="Remove from cart">−</button>
+                                    <span style="min-width: 20px; text-align: center; font-weight: bold;">${quantity}</span>
+                                    <button class="iconBtn add-to-cart" data-id="${item.id}" aria-label="Add to cart">+</button>
+                                ` : `
+                                    <button class="btn add-to-cart" data-id="${item.id}" style="padding: 8px 12px;">
+                                        Add to Order
+                                    </button>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Add event listeners for cart buttons
+    setTimeout(() => {
+        document.querySelectorAll('.add-to-cart').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-id');
+                addToCart(itemId);
+            });
+        });
+        
+        document.querySelectorAll('.remove-from-cart').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-id');
+                removeFromCart(itemId);
+            });
+        });
+    }, 100);
 }
 
+// Cart Management Functions
 function addToCart(itemId) {
-    const item = items.find(it => it.id === itemId);
+    const item = MENU_ITEMS.find(m => m.id === itemId);
     if (!item) return;
-
-    const existingItem = cartItems.find(cartItem => cartItem.id === itemId);
+    
+    const existingItem = cart.find(ci => ci.id === itemId);
     
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
-        cartItems.push({
+        cart.push({
             id: item.id,
             name: item.name,
             price: item.price,
             quantity: 1
         });
     }
-
-    // Update the global cart UI
-    if (window.updateCartUI) {
-        window.updateCartUI();
-    }
     
-    renderMenu();
-    showToast(`${item.name} added to cart`);
+    saveCart();
+    renderMenuItems();
+    updateCartUI();
+    showToast(`Added ${item.name} to order`);
 }
 
 function removeFromCart(itemId) {
-    const index = cartItems.findIndex(item => item.id === itemId);
-    if (index !== -1) {
-        const item = cartItems[index];
-        if (item.quantity > 1) {
-            item.quantity -= 1;
-        } else {
-            cartItems.splice(index, 1);
-        }
-        
-        // Update the global cart UI
-        if (window.updateCartUI) {
-            window.updateCartUI();
-        }
-        
-        renderMenu();
-        showToast(`${item.name} quantity updated`);
+    const itemIndex = cart.findIndex(ci => ci.id === itemId);
+    
+    if (itemIndex === -1) return;
+    
+    const itemName = cart[itemIndex].name;
+    
+    if (cart[itemIndex].quantity > 1) {
+        cart[itemIndex].quantity -= 1;
+    } else {
+        cart.splice(itemIndex, 1);
     }
+    
+    saveCart();
+    renderMenuItems();
+    updateCartUI();
+    showToast(`Removed ${itemName} from order`);
 }
 
 function clearCart() {
-    cartItems = [];
-    if (window.updateCartUI) {
-        window.updateCartUI();
-    }
-    renderMenu();
-    showToast("Cart cleared");
+    cart = [];
+    saveCart();
+    renderMenuItems();
+    updateCartUI();
+    showToast('Cart cleared');
 }
 
-function getFilteredItems() {
-    return items.filter(it => {
-        const okCat = activeCat === "All" || it.cat === activeCat;
-        if (!searchTerm.trim()) return okCat;
-        
-        const term = searchTerm.toLowerCase();
-        const nameMatch = it.name.toLowerCase().includes(term);
-        const bulletMatch = it.bullets.some(bullet => bullet.toLowerCase().includes(term));
-        const tagMatch = it.tag.toLowerCase().includes(term);
-        
-        return okCat && (nameMatch || bulletMatch || tagMatch);
+function saveCart() {
+    localStorage.setItem('goldenStarCart', JSON.stringify(cart));
+}
+
+// Cart Getters (used by payment system)
+window.getCartItems = function() {
+    return cart.map(item => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+    }));
+};
+
+window.getCartTotal = function() {
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+};
+
+window.getCartCount = function() {
+    return cart.reduce((count, item) => count + item.quantity, 0);
+};
+
+// Filter and Search Functions
+window.filterMenu = function(category) {
+    currentFilter = category;
+    renderMenuItems();
+};
+
+window.searchMenu = function(query) {
+    currentSearch = query;
+    renderMenuItems();
+};
+
+window.updateTableDisplay = function(tableValue) {
+    const table = getTableLabel(tableValue);
+    const currentTableEl = el('currentTable');
+    const modalTableEl = el('modalTable');
+    
+    if (currentTableEl) currentTableEl.textContent = table || "No Table Selected";
+    if (modalTableEl) modalTableEl.textContent = `Table: ${table || "--"}`;
+    
+    updatePaymentReferences(table);
+    updateCheckoutButtonState();
+    
+    showToast(`Table set to: ${table}`);
+};
+
+// Payment System Functions
+function getTableLabel(tableValue = null) {
+    const tableSelect = el('tableNumber');
+    if (!tableSelect) return '';
+    
+    const v = tableValue || tableSelect.value;
+    if (!v) return '';
+    if (v === "Take Away" || v === "Delivery") return v;
+    return v.toString().startsWith("Table") || v.toString().startsWith("VIP") 
+        ? v 
+        : `Table ${v}`;
+}
+
+function requireTable() {
+    const t = getTableLabel();
+    if (!t) {
+        showToast("Please select your table before checkout", "warning");
+        const tableSelect = el('tableNumber');
+        if (tableSelect) tableSelect.focus();
+        return false;
+    }
+    return true;
+}
+
+function updatePaymentReferences(table) {
+    const ref = table ? table.replace(/\s+/g, "-").toUpperCase() : "TABLE-";
+    
+    // Update all reference elements
+    const refElements = {
+        'mpesaRef': ref,
+        'mpesaTable': ref,
+        'bankRef': ref,
+        'bankTable': ref,
+        'cashTable': table || "--",
+        'paystackTable': table || "--"
+    };
+    
+    Object.entries(refElements).forEach(([id, value]) => {
+        const element = el(id);
+        if (element) element.textContent = value;
+    });
+    
+    // Special case for paystack reference
+    const paystackReferenceEl = el('paystackReference');
+    if (paystackReferenceEl) {
+        paystackReferenceEl.textContent = `GS-${table ? table.replace(/\s+/g, "") : "ORDER"}-${Date.now().toString().slice(-6)}`;
+    }
+}
+
+function refreshAmountsInPaymentPanels() {
+    const total = getCartTotal();
+    const t = getTableLabel();
+    
+    // Update all amount displays
+    const amountElements = {
+        'mpesaAmount': fmtKES(total),
+        'bankAmount': fmtKES(total),
+        'cashAmount': fmtKES(total),
+        'paystackAmount': fmtKES(total),
+        'mpesaTill': CONFIG.mpesaTill,
+        'mpesaTill2': CONFIG.mpesaTill,
+        'bankName': CONFIG.bankName,
+        'bankAcc': CONFIG.bankAccount,
+        'bankAccName': CONFIG.bankAccountName,
+        'cashTable': t || "--",
+        'paystackTable': t || "--"
+    };
+    
+    Object.entries(amountElements).forEach(([id, value]) => {
+        const element = el(id);
+        if (element) element.textContent = value;
     });
 }
 
-function showToast(message, type = 'success') {
-    // Use the toast system from HTML if available
-    if (window.showToast) {
-        window.showToast(message, type);
-        return;
+// WhatsApp Message Building
+function buildRestaurantWhatsAppMessage(payload) {
+    const items = payload.items || [];
+    const lines = items.map(it => {
+        return `• ${it.name} x${it.quantity} — ${fmtKES(it.price * it.quantity)}`;
+    });
+    
+    const totalItems = items.reduce((sum, it) => sum + it.quantity, 0);
+    
+    return [
+        `🚨 *NEW ORDER - GOLDEN STAR RESTAURANT* 🚨`,
+        `📅 ${new Date().toLocaleDateString('en-KE', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        })}`,
+        `📋 *Order ID:* ${payload.orderId}`,
+        `🏠 *Table/Service:* ${payload.table}`,
+        `💰 *Payment Method:* ${payload.paymentLabel}`,
+        payload.paymentReference ? `🔢 *Payment Ref:* ${payload.paymentReference}` : '',
+        `📊 *Total Items:* ${totalItems}`,
+        `💵 *Order Total:* ${fmtKES(payload.total)}`,
+        ``,
+        `📝 *ORDER ITEMS:*`,
+        ...lines,
+        ``,
+        `⏱️ *Status:* PENDING`,
+        `👨‍🍳 *Action Required:* Prepare order immediately`,
+        ``,
+        `✅ *Auto-generated by Restaurant Order System*`
+    ].filter(Boolean).join("\n");
+}
+
+function buildCustomerWhatsAppMessage(payload) {
+    const items = payload.items || [];
+    const lines = items.map(it => {
+        return `• ${it.name} x${it.quantity} — ${fmtKES(it.price * it.quantity)}`;
+    });
+    
+    return [
+        `✅ *${CONFIG.restaurantName} — Order Confirmed*`,
+        `🎉 Thank you for your order!`,
+        ``,
+        `📋 *Order ID:* ${payload.orderId}`,
+        `🏠 *Table:* ${payload.table}`,
+        `💰 *Payment:* ${payload.paymentLabel}`,
+        payload.paymentReference ? `🔢 *Payment Ref:* ${payload.paymentReference}` : '',
+        `💵 *Total:* ${fmtKES(payload.total)}`,
+        ``,
+        `📝 *Your Order:*`,
+        ...lines,
+        ``,
+        `⏱️ *Estimated Time:* 15-20 minutes`,
+        `📍 *Location:* Banda Street, Nairobi`,
+        `📞 *Contact:* +254740940395`,
+        ``,
+        `👨‍🍳 *Your order is being prepared. Thank you!*`
+    ].filter(Boolean).join("\n");
+}
+
+function autoForwardToRestaurantWhatsApp(payload) {
+    // Build restaurant message
+    const restaurantMsg = buildRestaurantWhatsAppMessage(payload);
+    const encodedRestaurantMsg = encodeURIComponent(restaurantMsg);
+    
+    // Build customer message
+    const customerMsg = buildCustomerWhatsAppMessage(payload);
+    
+    // Auto-open WhatsApp to restaurant number
+    const restaurantUrl = `https://wa.me/${RESTAURANT_WHATSAPP.replace(/\D/g, "")}?text=${encodedRestaurantMsg}`;
+    
+    // Open in new tab
+    const newWindow = window.open(restaurantUrl, '_blank');
+    
+    // If popup blocked, show instructions
+    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+        // Copy to clipboard as fallback
+        navigator.clipboard.writeText(restaurantMsg).then(() => {
+            showToast("Order details copied to clipboard. Please send to WhatsApp manually.");
+        });
     }
     
-    // Fallback toast
+    return customerMsg;
+}
+
+function generateOrderId() {
+    const d = new Date();
+    const y = d.getFullYear().toString().slice(-2);
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const rand = Math.floor(100 + Math.random() * 900);
+    return `GS-${y}${m}${day}-${rand}`;
+}
+
+function finalizeOrderWithAutoWhatsApp(paymentLabel, paymentReference = "") {
+    if (!requireTable()) return;
+
+    const cartItems = getCartItems();
+    if (cartItems.length === 0) {
+        showToast("Your cart is empty", "warning");
+        return;
+    }
+
+    const orderId = generateOrderId();
+    const payload = {
+        orderId,
+        table: getTableLabel(),
+        paymentLabel,
+        paymentReference,
+        items: cartItems,
+        total: getCartTotal(),
+        count: getCartCount(),
+        timestamp: new Date().toISOString()
+    };
+
+    // Store for later use
+    window.lastOrderPayload = payload;
+
+    // AUTO-FORWARD TO RESTAURANT WHATSAPP
+    const customerMessage = autoForwardToRestaurantWhatsApp(payload);
+    payload.customerMessage = customerMessage;
+
+    // Success UI
+    setTimeout(() => {
+        el('paymentModal').classList.remove('open');
+        el('successModal').classList.add('open');
+
+        // Update success modal details
+        el('orderId').textContent = `ORDER-#${orderId}`;
+        el('successTable').textContent = payload.table;
+        el('successItems').textContent = String(payload.count);
+        el('successTotal').textContent = fmtKES(payload.total);
+        el('successPayment').textContent = payload.paymentLabel;
+        
+        // Clear cart after successful order
+        clearCart();
+    }, 1000);
+}
+
+// UI Update Functions
+window.updateCartUI = function() {
+    const count = getCartCount();
+    const total = getCartTotal();
+    const items = getCartItems();
+    
+    const itemText = count === 1 ? "1 item" : `${count} items`;
+    
+    // Update floating cart
+    el('count').textContent = count;
+    el('summary').textContent = count > 0 ? `${itemText} • ${fmtKES(total)}` : "No items yet";
+    
+    // Update cart modal
+    const cartLines = el('cartLines');
+    const emptyCartMessage = el('emptyCartMessage');
+    const totalEl = el('total');
+    const proceedToPaymentBtn = el('proceedToPayment');
+    
+    if (count === 0) {
+        emptyCartMessage.style.display = "block";
+        cartLines.innerHTML = '';
+        totalEl.textContent = "Total: KES 0";
+        proceedToPaymentBtn.disabled = true;
+    } else {
+        emptyCartMessage.style.display = "none";
+        
+        const linesHTML = items.map(item => {
+            return `
+                <div class="line" data-id="${item.id || item.name.replace(/\s+/g, '_')}">
+                    <div class="info">
+                        <b>${item.name}</b>
+                        <small>${fmtKES(item.price)} each</small>
+                    </div>
+                    <div class="qty">
+                        <button class="iconBtn qty-minus" data-id="${item.id || item.name}" aria-label="Decrease quantity">−</button>
+                        <span>${item.quantity}</span>
+                        <button class="iconBtn qty-plus" data-id="${item.id || item.name}" aria-label="Increase quantity">+</button>
+                    </div>
+                    <div style="font-weight:600; min-width:80px; text-align:right;">
+                        ${fmtKES(item.price * item.quantity)}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        cartLines.innerHTML = linesHTML;
+        totalEl.textContent = `Total: ${fmtKES(total)}`;
+        proceedToPaymentBtn.disabled = false;
+        
+        // Add event listeners for quantity buttons in cart modal
+        cartLines.querySelectorAll('.qty-minus').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-id');
+                removeFromCart(itemId);
+            });
+        });
+        
+        cartLines.querySelectorAll('.qty-plus').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-id');
+                addToCart(itemId);
+            });
+        });
+    }
+    
+    updateCheckoutButtonState();
+};
+
+function updateCheckoutButtonState() {
+    const hasItems = getCartCount() > 0;
+    const hasTable = !!getTableLabel();
+    const checkoutBtn = el('checkoutBtn');
+    const proceedToPaymentBtn = el('proceedToPayment');
+    
+    if (checkoutBtn) {
+        checkoutBtn.disabled = !(hasItems && hasTable);
+    }
+    if (proceedToPaymentBtn && !hasItems) {
+        proceedToPaymentBtn.disabled = true;
+    }
+}
+
+// Toast function
+function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = message;
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#1f6f3a'};
-        color: white;
-        padding: 12px 16px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 1000;
-        animation: slideInRight 0.3s ease;
-    `;
-    
+    toast.style.background = type === 'error' ? '#dc3545' : 
+                            type === 'warning' ? '#ffc107' : 
+                            '#1f6f3a';
     document.body.appendChild(toast);
     
     setTimeout(() => {
@@ -746,181 +1150,152 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// =============== RENDER FUNCTIONS ===============
-function renderMenu() {
-    const grid = document.getElementById("grid");
-    if (!grid) return;
+// Initialize Everything
+function init() {
+    console.log('Initializing Golden Star Restaurant Menu System...');
     
-    const filteredItems = getFilteredItems();
+    // Render menu immediately
+    renderMenuItems();
     
-    if (filteredItems.length === 0) {
-        grid.innerHTML = `
-            <div class="empty-state" style="grid-column: 1 / -1;">
-                <div class="icon">🔍</div>
-                <h3>No items found</h3>
-                <p>Try a different search term or category</p>
-            </div>
-        `;
-        return;
+    // Setup payment event listeners
+    setupPaymentEventListeners();
+    
+    // Update UI
+    updateCartUI();
+    updateCheckoutButtonState();
+    
+    // Load saved table if exists
+    const savedTable = localStorage.getItem('goldenStarTable');
+    if (savedTable && el('tableNumber')) {
+        el('tableNumber').value = savedTable;
+        updateTableDisplay(savedTable);
     }
     
-    grid.innerHTML = filteredItems.map(item => {
-        const qty = getItemQuantity(item.id);
-        const imageUrl = getImageUrl(item.id);
-        
-        return `
-            <div class="card">
-                <img class="bg" 
-                     src="${imageUrl}" 
-                     alt="${item.name}" 
-                     loading="lazy"
-                     onerror="this.onerror=null; this.src='${RESTAURANT_CONFIG.fallbackImage}';">
-                <div class="shade"></div>
-                <div class="overlay">
-                    <div class="topline">
-                        <div>
-                            <div class="name">${item.name}</div>
-                            <div class="meta">
-                                <span class="tag">${item.tag}</span>
-                                <span class="tag">${money(item.price)}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bottom">
-                        <ul class="bullets">
-                            ${item.bullets.map(bullet => `<li>${bullet}</li>`).join('')}
-                        </ul>
-                        <div class="row">
-                            <div>
-                                <div class="price">${money(item.price)}</div>
-                                <div class="small">${qty > 0 ? `In order: ${qty}` : "Tap Order to add"}</div>
-                            </div>
-                            <button class="btn" data-add="${item.id}" aria-label="Add ${item.name} to cart">
-                                🛒 ${qty > 0 ? 'Add More' : 'Order'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    // Add event listeners to all "Add to cart" buttons
-    grid.querySelectorAll('[data-add]').forEach(button => {
-        button.addEventListener('click', () => {
-            const itemId = button.getAttribute('data-add');
-            addToCart(itemId);
-        });
-    });
+    console.log('System initialized successfully with 64 menu items');
 }
 
-// =============== EVENT LISTENERS ===============
-function setupEventListeners() {
-    // Category filter buttons
-    document.querySelectorAll('.pill[data-cat]').forEach(pill => {
-        pill.addEventListener('click', () => {
-            // Update active category
-            activeCat = pill.getAttribute('data-cat');
+function setupPaymentEventListeners() {
+    // Checkout button
+    el('checkoutBtn')?.addEventListener('click', function() {
+        if (!requireTable()) return;
+        
+        const items = getCartItems();
+        if (items.length === 0) {
+            showToast("Please add items to your order first", "warning");
+            return;
+        }
+        
+        el('cartModal').classList.remove('open');
+        el('paymentModal').classList.add('open');
+        refreshAmountsInPaymentPanels();
+        
+        // Select Paystack by default
+        setTimeout(() => {
+            document.querySelectorAll(".payment-option").forEach(x => x.classList.remove("selected"));
+            const paystackOption = document.querySelector('.payment-option[data-method="paystack"]');
+            if (paystackOption) {
+                paystackOption.classList.add("selected");
+                window.selectedPayment = "paystack";
+                
+                // Show Paystack panel
+                ["mpesa","bank","cash","paystack"].forEach(m => {
+                    const detailsEl = el(m + "Details");
+                    if (detailsEl) detailsEl.classList.add("hidden");
+                });
+                const paystackDetails = el("paystackDetails");
+                if (paystackDetails) paystackDetails.classList.remove("hidden");
+            }
+        }, 100);
+    });
+    
+    // Proceed to payment button
+    el('proceedToPayment')?.addEventListener('click', function() {
+        if (!requireTable()) return;
+        el('cartModal').classList.remove('open');
+        el('paymentModal').classList.add('open');
+        refreshAmountsInPaymentPanels();
+    });
+    
+    // Payment method selection
+    document.querySelectorAll(".payment-option").forEach(opt => {
+        opt.addEventListener("click", function(e) {
+            document.querySelectorAll(".payment-option").forEach(x => x.classList.remove("selected"));
+            this.classList.add("selected");
+            window.selectedPayment = this.dataset.method;
             
-            // Update UI
-            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
-            
-            // Render menu
-            renderMenu();
+            // Show relevant panel
+            ["mpesa","bank","cash","paystack"].forEach(m => {
+                const detailsEl = el(m + "Details");
+                if (detailsEl) detailsEl.classList.add("hidden");
+            });
+            const selectedDetails = el(window.selectedPayment + "Details");
+            if (selectedDetails) selectedDetails.classList.remove("hidden");
         });
     });
     
-    // Search input
-    const searchInput = document.getElementById('q');
-    if (searchInput) {
-        let searchTimeout;
-        searchInput.addEventListener('input', () => {
-            searchTerm = searchInput.value.trim();
-            
-            // Debounce search to improve performance
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                renderMenu();
-            }, 300);
-        });
+    // Copy buttons
+    document.addEventListener("click", function(e) {
+        const btn = e.target.closest(".copy-btn");
+        if (!btn) return;
         
-        // Clear search button
-        const searchClear = document.createElement('button');
-        searchClear.innerHTML = '×';
-        searchClear.style.cssText = `
-            background: transparent;
-            border: none;
-            color: rgba(255,255,255,0.7);
-            cursor: pointer;
-            font-size: 18px;
-            padding: 0 4px;
-            display: ${searchInput.value ? 'block' : 'none'};
-        `;
-        searchClear.setAttribute('aria-label', 'Clear search');
-        searchClear.addEventListener('click', () => {
-            searchInput.value = '';
-            searchTerm = '';
-            searchClear.style.display = 'none';
-            renderMenu();
-        });
+        let v = btn.getAttribute("data-copy");
+        if (!v && btn.id === "copyMpesaRef") v = el("mpesaRef")?.textContent || "";
+        if (!v && btn.id === "copyBankRef") v = el("bankRef")?.textContent || "";
+        if (!v && btn.id === "copyMpesaAmount") v = String(getCartTotal());
+        if (!v && btn.id === "copyBankAmount") v = String(getCartTotal());
         
-        searchInput.parentNode.appendChild(searchClear);
-        
-        searchInput.addEventListener('input', () => {
-            searchClear.style.display = searchInput.value ? 'block' : 'none';
+        navigator.clipboard.writeText(v || "").then(() => {
+            showToast("Copied to clipboard!");
+            btn.textContent = "Copied";
+            setTimeout(() => btn.textContent = "Copy", 1000);
+        }).catch(() => {
+            showToast("Failed to copy. Please copy manually.", "error");
         });
-    }
+    });
     
-    // Initialize with "All" category active
-    const allButton = document.querySelector('.pill[data-cat="All"]');
-    if (allButton) {
-        allButton.click();
-    }
+    // Payment confirmation buttons
+    el('confirmMpesa')?.addEventListener('click', () => finalizeOrderWithAutoWhatsApp("MPesa Till"));
+    el('confirmBank')?.addEventListener('click', () => finalizeOrderWithAutoWhatsApp("Bank Transfer"));
+    el('confirmCash')?.addEventListener('click', () => finalizeOrderWithAutoWhatsApp("Cash"));
+    el('initiatePaystack')?.addEventListener('click', () => finalizeOrderWithAutoWhatsApp("M-Pesa STK Push"));
+    
+    // Success modal buttons
+    el('sendWhatsApp')?.addEventListener('click', function() {
+        if (!window.lastOrderPayload || !window.lastOrderPayload.customerMessage) {
+            showToast("No order details available", "error");
+            return;
+        }
+        
+        const encodedMsg = encodeURIComponent(window.lastOrderPayload.customerMessage);
+        const whatsappUrl = `https://wa.me/?text=${encodedMsg}`;
+        window.open(whatsappUrl, '_blank');
+    });
+    
+    el('newOrder')?.addEventListener('click', function() {
+        el('successModal').classList.remove('open');
+        window.lastOrderPayload = null;
+        showToast("Ready for new order!");
+    });
+    
+    // Save table selection
+    el('tableNumber')?.addEventListener('change', function() {
+        localStorage.setItem('goldenStarTable', this.value);
+    });
 }
 
-// =============== INITIALIZATION ===============
-function initMenu() {
-    // Remove loading state
-    const loadingState = document.getElementById('loadingState');
-    if (loadingState) {
-        loadingState.style.display = 'none';
-    }
-    
-    // Setup event listeners
-    setupEventListeners();
-    
-    // Initial render
-    renderMenu();
-    
-    // Initial cart UI update
-    if (window.updateCartUI) {
-        window.updateCartUI();
-    }
-    
-    console.log('Menu initialized successfully');
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
 }
 
-// =============== EXPOSE FUNCTIONS TO WINDOW ===============
-window.initMenu = initMenu;
-window.clearCart = clearCart;
+// Export functions for HTML to call
 window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
-
-// For backward compatibility with payment system
-window.getCartItems = () => cartItems.map(item => ({
-    name: item.name,
-    price: item.price,
-    qty: item.quantity
-}));
-
-window.getCartTotal = () => cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-
-window.getCartCount = () => cartItems.reduce((count, item) => count + item.quantity, 0);
-
-// =============== START APPLICATION ===============
-// Wait for DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait a bit for HTML payment system to load first
-    setTimeout(initMenu, 100);
-});
+window.clearCart = clearCart;
+window.filterMenu = filterMenu;
+window.searchMenu = searchMenu;
+window.updateTableDisplay = updateTableDisplay;
+window.updateCartUI = updateCartUI;
+window.showToast = showToast;
