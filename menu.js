@@ -18,7 +18,7 @@ const IMAGE_MAP = {
     "breakfast_french_toast": "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=1200&h=900&fit=crop",
     "breakfast_spanish_omelette": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=1200&h=900&fit=crop",
     "breakfast_boiled_eggs_2": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=1200&h=900&fit=crop",
-    "breakfast_scrambled_eggs": "https://images.unsplash.com/photo-1493612276216-ee3925520721?w=1200&h=900&fit=crop",
+    "breakfast_scrambled_eggs": "https://i.ibb.co/9HDtFDtd/JF-241160-Creamy-Cottage-Cheese-Scrambled-4x3-12902-619d00dc88594ea9b8ed884a108db16d.jpg",
     "breakfast_eggs_sausage": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=1200&h=900&fit=crop",
     "breakfast_sausage_2_pcs": "https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?w=1200&h=900&fit=crop",
     "breakfast_smokies_2_pcs": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1200&h=900&fit=crop",
@@ -858,4 +858,5 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
     init();
+
 }
