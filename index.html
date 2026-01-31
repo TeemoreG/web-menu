@@ -1324,526 +1324,83 @@
   </div>
 </div>
 
-<!-- LOAD MENU.JS FIRST -->
+<!-- LOAD MENU.JS FIRST - This will handle menu display AND payment -->
 <script src="menu.js"></script>
 
-<!-- PAYMENT SYSTEM WITH WHATSAPP FIX -->
+<!-- ONLY the event listeners that connect the HTML to the menu.js functions -->
 <script>
-// ========= PAYMENT SYSTEM WITH WHATSAPP AUTO-FORWARDING =========
-
-// RESTAURANT WHATSAPP NUMBER
-const RESTAURANT_WHATSAPP = "+254740940395";
-
-const CONFIG = {
-  restaurantName: "Golden Star Restaurant",
-  whatsappTo: RESTAURANT_WHATSAPP,
-  mpesaTill: "888555",
-  bankName: "KCB Bank",
-  bankAccount: "0123456789",
-  bankAccountName: "GOLDEN STAR RESTAURANT",
-};
-
-// Helper functions
-const el = (id) => document.getElementById(id);
-const fmtKES = (n) => `KES ${Number(n || 0).toLocaleString("en-KE")}`;
-const showToast = (message, type = 'success') => {
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = message;
-  toast.style.background = type === 'error' ? '#dc3545' : 
-                          type === 'warning' ? '#ffc107' : 
-                          'var(--accent)';
-  document.body.appendChild(toast);
-  
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateX(100%)';
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
-};
-
-// State
-let selectedPayment = "";
-let lastOrderPayload = null;
-
-// Initialize
-function initPaymentSystem() {
-  setupEventListeners();
-  tick();
-}
-
-// Event listeners setup
-function setupEventListeners() {
-  // Table selection
-  el("tableNumber").addEventListener("change", handleTableChange);
-  
-  // Cart modal
-  el("openCart").addEventListener("click", () => el("cartModal").classList.add("open"));
-  el("closeCart").addEventListener("click", () => el("cartModal").classList.remove("open"));
-  el("closePayment").addEventListener("click", () => el("paymentModal").classList.remove("open"));
-  
-  // Checkout
-  el("checkoutBtn").addEventListener("click", handleCheckout);
-  el("proceedToPayment").addEventListener("click", handleProceedToPayment);
-  
-  // Payment methods
-  document.querySelectorAll(".payment-option").forEach(opt => {
-    opt.addEventListener("click", handlePaymentSelection);
-  });
-  
-  // Copy buttons
-  document.addEventListener("click", handleCopyButtonClick);
-  
-  // Payment confirmations
-  el("confirmMpesa").addEventListener("click", () => finalizeOrder("MPesa Till"));
-  el("confirmBank").addEventListener("click", () => finalizeOrder("Bank Transfer"));
-  el("confirmCash").addEventListener("click", () => finalizeOrder("Cash"));
-  el("initiatePaystack").addEventListener("click", handlePaystackPayment);
-  
-  // Success modal
-  el("newOrder").addEventListener("click", handleNewOrder);
-  el("sendWhatsApp").addEventListener("click", handleSendWhatsApp);
-}
-
-// Event handlers
-function handleTableChange() {
-  const table = getTableLabel();
-  el("currentTable").textContent = table || "No Table Selected";
-  el("modalTable").textContent = `Table: ${table || "--"}`;
-  
-  // Update references
-  updatePaymentReferences(table);
-  
-  // Update checkout button state
-  updateCheckoutButtonState();
-}
-
-function handleCheckout() {
-  if (!requireTable()) return;
-  
-  const items = getCartItems();
-  if (items.length === 0) {
-    showToast("Please add items to your order first", "warning");
-    return;
-  }
-  
-  el("cartModal").classList.remove("open");
-  el("paymentModal").classList.add("open");
-  refreshAmountsInPaymentPanels();
-  
-  // Select Paystack by default
-  setTimeout(() => {
-    document.querySelectorAll(".payment-option").forEach(x => x.classList.remove("selected"));
-    const paystackOption = document.querySelector('.payment-option[data-method="paystack"]');
-    if (paystackOption) {
-      paystackOption.classList.add("selected");
-      selectedPayment = "paystack";
-      
-      // Show Paystack panel
-      ["mpesa","bank","cash","paystack"].forEach(m => {
-        el(m + "Details").classList.add("hidden");
-      });
-      el("paystackDetails").classList.remove("hidden");
-    }
-  }, 100);
-}
-
-function handleProceedToPayment() {
-  if (!requireTable()) return;
-  el("cartModal").classList.remove("open");
-  el("paymentModal").classList.add("open");
-  refreshAmountsInPaymentPanels();
-}
-
-function handlePaymentSelection(e) {
-  const opt = e.currentTarget;
-  document.querySelectorAll(".payment-option").forEach(x => x.classList.remove("selected"));
-  opt.classList.add("selected");
-  selectedPayment = opt.dataset.method;
-
-  // Show relevant panel
-  ["mpesa","bank","cash","paystack"].forEach(m => {
-    el(m + "Details").classList.add("hidden");
-  });
-  el(selectedPayment + "Details").classList.remove("hidden");
-}
-
-async function handleCopyButtonClick(e) {
-  const btn = e.target.closest(".copy-btn");
-  if (!btn) return;
-
-  let v = btn.getAttribute("data-copy");
-  if (!v && btn.id === "copyMpesaRef") v = el("mpesaRef").textContent;
-  if (!v && btn.id === "copyBankRef") v = el("bankRef").textContent;
-  if (!v && btn.id === "copyMpesaAmount") v = String(getCartTotal());
-  if (!v && btn.id === "copyBankAmount") v = String(getCartTotal());
-
-  try {
-    await navigator.clipboard.writeText(v || "");
-    showToast("Copied to clipboard!");
-    btn.textContent = "Copied";
-    setTimeout(() => btn.textContent = "Copy", 1000);
-  } catch {
-    showToast("Failed to copy. Please copy manually.", "error");
-  }
-}
-
-function handlePaystackPayment() {
-  showToast("Paystack integration requires setup. Please use MPesa Manual option.", "warning");
-}
-
-function handleNewOrder() {
-  el("successModal").classList.remove("open");
-  lastOrderPayload = null;
-  
-  // Clear cart
-  if (window.clearCart) {
-    window.clearCart();
-  }
-  
-  // Reset form
-  el("summary").textContent = "No items yet";
-  el("count").textContent = "0";
-  el("paystackPhone").value = "2547";
-  
-  showToast("Ready for new order!");
-}
-
-function handleSendWhatsApp() {
-  if (!lastOrderPayload || !lastOrderPayload.customerMessage) {
-    showToast("No order details available", "error");
-    return;
-  }
-  
-  const encodedMsg = encodeURIComponent(lastOrderPayload.customerMessage);
-  const whatsappUrl = `https://wa.me/?text=${encodedMsg}`;
-  window.open(whatsappUrl, '_blank');
-}
-
-// Utility functions
-function getTableLabel() {
-  const v = el("tableNumber").value;
-  if (!v) return "";
-  if (v === "Take Away" || v === "Delivery") return v;
-  return v.toString().startsWith("Table") || v.toString().startsWith("VIP") 
-    ? v 
-    : `Table ${v}`;
-}
-
-function requireTable() {
-  const t = getTableLabel();
-  if (!t) {
-    showToast("Please select your table before checkout", "warning");
-    el("tableNumber").focus();
-    return false;
-  }
-  return true;
-}
-
-function updatePaymentReferences(table) {
-  const ref = table ? table.replace(/\s+/g, "-").toUpperCase() : "TABLE-";
-  el("mpesaRef").textContent = ref;
-  el("mpesaTable").textContent = ref;
-  el("bankRef").textContent = ref;
-  el("bankTable").textContent = ref;
-  el("cashTable").textContent = table || "--";
-  el("paystackTable").textContent = table || "--";
-  el("paystackReference").textContent = `GS-${table ? table.replace(/\s+/g, "") : "ORDER"}-${Date.now().toString().slice(-6)}`;
-}
-
-function refreshAmountsInPaymentPanels() {
-  const total = getCartTotal();
-  const t = getTableLabel();
-
-  el("mpesaTill").textContent = CONFIG.mpesaTill;
-  el("mpesaTill2").textContent = CONFIG.mpesaTill;
-  el("mpesaAmount").textContent = fmtKES(total);
-
-  el("bankName").textContent = CONFIG.bankName;
-  el("bankAcc").textContent = CONFIG.bankAccount;
-  el("bankAccName").textContent = CONFIG.bankAccountName;
-  el("bankAmount").textContent = fmtKES(total);
-
-  el("cashAmount").textContent = fmtKES(total);
-  el("cashTable").textContent = t || "--";
-
-  // Paystack amounts
-  el("paystackAmount").textContent = fmtKES(total);
-  el("paystackTable").textContent = t || "--";
-}
-
-// Get cart items from menu.js system
-function getCartItems() {
-  if (window.getCartItems) {
-    return window.getCartItems();
-  }
-  return [];
-}
-
-function getCartTotal() {
-  if (window.getCartTotal) {
-    return window.getCartTotal();
-  }
-  return 0;
-}
-
-function getCartCount() {
-  if (window.getCartCount) {
-    return window.getCartCount();
-  }
-  return 0;
-}
-
-function generateOrderId() {
-  const d = new Date();
-  const y = d.getFullYear().toString().slice(-2);
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const rand = Math.floor(100 + Math.random() * 900);
-  return `GS-${y}${m}${day}-${rand}`;
-}
-
-// FIXED: WhatsApp message building function
-function buildRestaurantWhatsAppMessage(payload) {
-  const items = payload.items || [];
-  const lines = items.map(it => {
-    if (typeof it === 'object') {
-      return `• ${it.name || it.item} x${it.quantity || it.qty} — ${fmtKES((it.price || 0) * (it.quantity || 1))}`;
-    }
-    return `• ${it}`;
-  });
-  
-  const totalItems = items.reduce((sum, it) => {
-    if (typeof it === 'object') {
-      return sum + (it.quantity || it.qty || 1);
-    }
-    return sum + 1;
-  }, 0);
-  
-  return [
-    `🚨 *NEW ORDER - GOLDEN STAR RESTAURANT* 🚨`,
-    `📅 ${new Date().toLocaleDateString('en-KE', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric', 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    })}`,
-    `📋 *Order ID:* ${payload.orderId}`,
-    `🏠 *Table/Service:* ${payload.table}`,
-    `💰 *Payment Method:* ${payload.paymentLabel}`,
-    payload.paymentReference ? `🔢 *Payment Ref:* ${payload.paymentReference}` : '',
-    `📊 *Total Items:* ${totalItems}`,
-    `💵 *Order Total:* ${fmtKES(payload.total)}`,
-    ``,
-    `📝 *ORDER ITEMS:*`,
-    ...lines,
-    ``,
-    `⏱️ *Status:* PENDING`,
-    `👨‍🍳 *Action Required:* Prepare order immediately`,
-    ``,
-    `✅ *Auto-generated by Restaurant Order System*`
-  ].filter(Boolean).join("\n");
-}
-
-function buildCustomerWhatsAppMessage(payload) {
-  const items = payload.items || [];
-  const lines = items.map(it => {
-    if (typeof it === 'object') {
-      return `• ${it.name || it.item} x${it.quantity || it.qty} — ${fmtKES((it.price || 0) * (it.quantity || 1))}`;
-    }
-    return `• ${it}`;
-  });
-  
-  return [
-    `✅ *${CONFIG.restaurantName} — Order Confirmed*`,
-    `🎉 Thank you for your order!`,
-    ``,
-    `📋 *Order ID:* ${payload.orderId}`,
-    `🏠 *Table:* ${payload.table}`,
-    `💰 *Payment:* ${payload.paymentLabel}`,
-    payload.paymentReference ? `🔢 *Payment Ref:* ${payload.paymentReference}` : '',
-    `💵 *Total:* ${fmtKES(payload.total)}`,
-    ``,
-    `📝 *Your Order:*`,
-    ...lines,
-    ``,
-    `⏱️ *Estimated Time:* 15-20 minutes`,
-    `📍 *Location:* Banda Street, Nairobi`,
-    `📞 *Contact:* +254740940395`,
-    ``,
-    `👨‍🍳 *Your order is being prepared. Thank you!*`
-  ].filter(Boolean).join("\n");
-}
-
-// FIXED: WhatsApp auto-forwarding function
-function autoForwardToRestaurantWhatsApp(payload) {
-  // Build restaurant message
-  const restaurantMsg = buildRestaurantWhatsAppMessage(payload);
-  const encodedRestaurantMsg = encodeURIComponent(restaurantMsg);
-  
-  // Build customer message
-  const customerMsg = buildCustomerWhatsAppMessage(payload);
-  const encodedCustomerMsg = encodeURIComponent(customerMsg);
-  
-  // Auto-open WhatsApp to restaurant number
-  const restaurantUrl = `https://wa.me/${RESTAURANT_WHATSAPP.replace(/\D/g, "")}?text=${encodedRestaurantMsg}`;
-  
-  // Open in new tab
-  const newWindow = window.open(restaurantUrl, '_blank');
-  
-  // If popup blocked, show instructions
-  if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-    // Copy to clipboard as fallback
-    navigator.clipboard.writeText(restaurantMsg).then(() => {
-      showToast("Order details copied to clipboard. Please send to WhatsApp.");
+// Simple event listeners that delegate to menu.js functions
+document.addEventListener('DOMContentLoaded', function() {
+  // Open cart button
+  const openCartBtn = document.getElementById('openCart');
+  if (openCartBtn) {
+    openCartBtn.addEventListener('click', function() {
+      document.getElementById('cartModal').classList.add('open');
+      if (window.updateCartUI) {
+        window.updateCartUI();
+      }
     });
   }
   
-  return customerMsg;
-}
-
-// FIXED: Finalize order with WhatsApp
-function finalizeOrderWithAutoWhatsApp(paymentLabel, paymentReference = "") {
-  if (!requireTable()) return;
-
-  const cartItems = getCartItems();
-  if (cartItems.length === 0) {
-    showToast("Your cart is empty", "warning");
-    return;
-  }
-
-  const orderId = generateOrderId();
-  const payload = {
-    orderId,
-    table: getTableLabel(),
-    paymentLabel,
-    paymentReference,
-    items: cartItems,
-    total: getCartTotal(),
-    count: getCartCount(),
-    timestamp: new Date().toISOString()
-  };
-
-  lastOrderPayload = payload;
-
-  // AUTO-FORWARD TO RESTAURANT WHATSAPP
-  const customerMessage = autoForwardToRestaurantWhatsApp(payload);
-  payload.customerMessage = customerMessage;
-
-  // Success UI
-  setTimeout(() => {
-    el("paymentModal").classList.remove("open");
-    el("successModal").classList.add("open");
-
-    el("orderId").textContent = `ORDER-#${orderId}`;
-    el("successTable").textContent = payload.table;
-    el("successItems").textContent = String(payload.count);
-    el("successTotal").textContent = fmtKES(payload.total);
-    el("successPayment").textContent = payload.paymentLabel;
-  }, 1000);
-}
-
-function finalizeOrder(paymentLabel) {
-  finalizeOrderWithAutoWhatsApp(paymentLabel, "");
-}
-
-// Cart management functions
-window.updateCartUI = function() {
-  // Update floating cart
-  const count = getCartCount();
-  const total = getCartTotal();
-  const items = getCartItems();
-  
-  const itemText = count === 1 ? "1 item" : `${count} items`;
-  
-  el("count").textContent = count;
-  el("summary").textContent = count > 0 ? `${itemText} • ${fmtKES(total)}` : "No items yet";
-  
-  // Update cart modal
-  const cartLines = el("cartLines");
-  const emptyCartMessage = el("emptyCartMessage");
-  
-  if (count === 0) {
-    emptyCartMessage.style.display = "block";
-    cartLines.innerHTML = '';
-    el("total").textContent = "Total: KES 0";
-    el("proceedToPayment").disabled = true;
-  } else {
-    emptyCartMessage.style.display = "none";
-    
-    const linesHTML = items.map(item => {
-      const quantity = item.quantity || item.qty || 1;
-      const price = item.price || 0;
-      const name = item.name || item.item || "Unknown Item";
-      const itemId = item.id || name;
-      
-      return `
-        <div class="line" data-id="${itemId}">
-          <div class="info">
-            <b>${name}</b>
-            <small>${fmtKES(price)} each</small>
-          </div>
-          <div class="qty">
-            <button class="iconBtn qty-minus" aria-label="Decrease quantity">−</button>
-            <span>${quantity}</span>
-            <button class="iconBtn qty-plus" aria-label="Increase quantity">+</button>
-          </div>
-          <div style="font-weight:600; min-width:80px; text-align:right;">
-            ${fmtKES(price * quantity)}
-          </div>
-        </div>
-      `;
-    }).join('');
-    
-    cartLines.innerHTML = linesHTML;
-    el("total").textContent = `Total: ${fmtKES(total)}`;
-    el("proceedToPayment").disabled = false;
-    
-    // Add event listeners for quantity buttons
-    cartLines.querySelectorAll('.qty-minus').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const line = this.closest('.line');
-        const itemId = line.dataset.id;
-        // Call menu.js function to decrease quantity
-        if (window.removeFromCart) {
-          window.removeFromCart(itemId);
-        }
-      });
-    });
-    
-    cartLines.querySelectorAll('.qty-plus').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const line = this.closest('.line');
-        const itemId = line.dataset.id;
-        // Call menu.js function to increase quantity
-        if (window.addToCart) {
-          window.addToCart(itemId);
-        }
-      });
+  // Close cart button
+  const closeCartBtn = document.getElementById('closeCart');
+  if (closeCartBtn) {
+    closeCartBtn.addEventListener('click', function() {
+      document.getElementById('cartModal').classList.remove('open');
     });
   }
-};
-
-function updateCheckoutButtonState() {
-  const hasItems = getCartCount() > 0;
-  const hasTable = !!getTableLabel();
-  el("checkoutBtn").disabled = !(hasItems && hasTable);
-}
-
-// Update button states continuously
-function tick() {
-  updateCheckoutButtonState();
-  requestAnimationFrame(tick);
-}
-
-// Initialize when DOM is loaded
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPaymentSystem);
-} else {
-  initPaymentSystem();
-}
+  
+  // Close payment button
+  const closePaymentBtn = document.getElementById('closePayment');
+  if (closePaymentBtn) {
+    closePaymentBtn.addEventListener('click', function() {
+      document.getElementById('paymentModal').classList.remove('open');
+    });
+  }
+  
+  // Table change
+  const tableSelect = document.getElementById('tableNumber');
+  if (tableSelect) {
+    tableSelect.addEventListener('change', function() {
+      if (window.updateTableDisplay) {
+        window.updateTableDisplay(this.value);
+      }
+    });
+  }
+  
+  // Filter pills
+  document.querySelectorAll('.pill').forEach(pill => {
+    pill.addEventListener('click', function() {
+      const category = this.getAttribute('data-cat');
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+      if (window.filterMenu) {
+        window.filterMenu(category);
+      }
+    });
+  });
+  
+  // Search
+  const searchInput = document.getElementById('q');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      if (window.searchMenu) {
+        window.searchMenu(this.value);
+      }
+    });
+  }
+  
+  // New order button
+  const newOrderBtn = document.getElementById('newOrder');
+  if (newOrderBtn) {
+    newOrderBtn.addEventListener('click', function() {
+      document.getElementById('successModal').classList.remove('open');
+      if (window.clearCart) {
+        window.clearCart();
+      }
+    });
+  }
+});
 </script>
 </body>
 </html>
