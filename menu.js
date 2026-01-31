@@ -1,9 +1,8 @@
 // =============== CONFIGURATION SECTION ===============
-// RESTAURANT CONFIGURATION - CHANGE THESE FOR EACH CLIENT
+// RESTAURANT CONFIGURATION
 const RESTAURANT_CONFIG = {
     name: "Golden Star Restaurant",
-    whatsappNumber: "254702099927", // Client's WhatsApp number
-    // Base URL for images - you can change this for different restaurants
+    whatsappNumber: "254740940395", // Updated to match HTML
     imageBaseUrl: "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/images/",
     fallbackImage: "https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=1200&h=900&fit=crop&crop=center"
 };
@@ -12,25 +11,25 @@ const RESTAURANT_CONFIG = {
 const IMAGE_MAP = {
     // Breakfast items
     "breakfast_farmers_omelette": "https://i.ibb.co/0pTPZ3Nm/4190bf33-4a7c-4d56-901d-3bca9c688965.jpg",
-"breakfast_samosa_6_pcs": "https://i.ibb.co/YFWNMS6C/7-1024x1024.webp",
-"breakfast_mandazi_3_pcs": "https://i.ibb.co/xK5vG5yQ/soft-mandazi-recipe.jpg",
-"breakfast_pancakes_3_pcs": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=1200&h=900&fit=crop",
-"breakfast_french_toast": "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=1200&h=900&fit=crop",
-"breakfast_spanish_omelette": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=1200&h=900&fit=crop",
-"breakfast_boiled_eggs_2": "https://i.ibb.co/kgWXnSQF/air-fryer-hard-boiled-eggs-4.jpg",
-"breakfast_scrambled_eggs": "https://i.ibb.co/9HDtFDtd/JF-241160-Creamy-Cottage-Cheese-Scrambled-4x3-12902-619d00dc88594ea9b8ed884a108db16d.jpg",
-"breakfast_eggs_sausage": "https://i.ibb.co/Z1cWYPrG/breakfast-eggs-sausage-hash-bacon.webp",
-"breakfast_sausage_2_pcs": "https://i.ibb.co/LhgXPFwJ/Rodriguez-Traditional-Spanish-Chorizo3-605507ec-6eaa-457f-ad5d-ae387b1d719a.webp",
-"breakfast_smokies_2_pcs": "https://i.ibb.co/Rn3R0gC/Hawaiian-Litl-Smokies-7.jpg",
-"breakfast_chapati_2_pcs": "https://i.ibb.co/dsdvc6zZ/photo.jpg",
-"breakfast_chapati_tea": "https://images.unsplash.com/photo-1561047029-3000c68339ca?w=1200&h=900&fit=crop",
-"breakfast_bhajia_plate": "https://images.unsplash.com/photo-1629115916083-7a5c19d3d1c5?w=1200&h=900&fit=crop",
-"breakfast_toast_jam": "https://images.unsplash.com/photo-1481070555726-e2fe8357725c?w=1200&h=900&fit=crop",
-"breakfast_fruit_salad_cup": "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=1200&h=900&fit=crop",
-"breakfast_oat_porridge": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1200&h=900&fit=crop",
-"breakfast_uji_power_porridge": "https://images.unsplash.com/photo-1515446134809-993c501ca304?w=1200&h=900&fit=crop",
-"breakfast_full_breakfast_plate": "https://images.unsplash.com/photo-1559215440-3e3c5c75c6a8?w=1200&h=900&fit=crop",
-"breakfast_beans_chapati": "https://images.unsplash.com/photo-1582034986517-30d163aa1da9?w=1200&h=900&fit=crop",
+    "breakfast_samosa_6_pcs": "https://i.ibb.co/YFWNMS6C/7-1024x1024.webp",
+    "breakfast_mandazi_3_pcs": "https://i.ibb.co/xK5vG5yQ/soft-mandazi-recipe.jpg",
+    "breakfast_pancakes_3_pcs": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=1200&h=900&fit=crop",
+    "breakfast_french_toast": "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=1200&h=900&fit=crop",
+    "breakfast_spanish_omelette": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=1200&h=900&fit=crop",
+    "breakfast_boiled_eggs_2": "https://i.ibb.co/kgWXnSQF/air-fryer-hard-boiled-eggs-4.jpg",
+    "breakfast_scrambled_eggs": "https://i.ibb.co/9HDtFDtd/JF-241160-Creamy-Cottage-Cheese-Scrambled-4x3-12902-619d00dc88594ea9b8ed884a108db16d.jpg",
+    "breakfast_eggs_sausage": "https://i.ibb.co/Z1cWYPrG/breakfast-eggs-sausage-hash-bacon.webp",
+    "breakfast_sausage_2_pcs": "https://i.ibb.co/LhgXPFwJ/Rodriguez-Traditional-Spanish-Chorizo3-605507ec-6eaa-457f-ad5d-ae387b1d719a.webp",
+    "breakfast_smokies_2_pcs": "https://i.ibb.co/Rn3R0gC/Hawaiian-Litl-Smokies-7.jpg",
+    "breakfast_chapati_2_pcs": "https://i.ibb.co/dsdvc6zZ/photo.jpg",
+    "breakfast_chapati_tea": "https://images.unsplash.com/photo-1561047029-3000c68339ca?w=1200&h=900&fit=crop",
+    "breakfast_bhajia_plate": "https://images.unsplash.com/photo-1629115916083-7a5c19d3d1c5?w=1200&h=900&fit=crop",
+    "breakfast_toast_jam": "https://images.unsplash.com/photo-1481070555726-e2fe8357725c?w=1200&h=900&fit=crop",
+    "breakfast_fruit_salad_cup": "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=1200&h=900&fit=crop",
+    "breakfast_oat_porridge": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1200&h=900&fit=crop",
+    "breakfast_uji_power_porridge": "https://images.unsplash.com/photo-1515446134809-993c501ca304?w=1200&h=900&fit=crop",
+    "breakfast_full_breakfast_plate": "https://images.unsplash.com/photo-1559215440-3e3c5c75c6a8?w=1200&h=900&fit=crop",
+    "breakfast_beans_chapati": "https://images.unsplash.com/photo-1582034986517-30d163aa1da9?w=1200&h=900&fit=crop",
     
     // Lunch items
     "lunch_chicken_biryani": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=1200&h=900&fit=crop",
@@ -618,15 +617,13 @@ const items = [
 ];
 
 // =============== APPLICATION STATE ===============
-const cart = new Map();
+let cartItems = []; // Now using array format compatible with HTML
 let activeCat = "All";
-
-// =============== DOM ELEMENTS ===============
-let grid, q, pills, countEl, summaryEl, modal, cartLines, totalEl;
+let searchTerm = "";
 
 // =============== UTILITY FUNCTIONS ===============
 function money(n) { 
-    return "KES " + Number(n).toLocaleString(); 
+    return "KES " + Number(n).toLocaleString("en-KE"); 
 }
 
 function getImageUrl(itemId) {
@@ -642,222 +639,299 @@ function getImageUrl(itemId) {
     return RESTAURANT_CONFIG.fallbackImage;
 }
 
-function filtered() {
-    const term = (q.value || "").trim().toLowerCase();
+function getItemQuantity(itemId) {
+    const item = cartItems.find(item => item.id === itemId);
+    return item ? item.quantity : 0;
+}
+
+function addToCart(itemId) {
+    const item = items.find(it => it.id === itemId);
+    if (!item) return;
+
+    const existingItem = cartItems.find(cartItem => cartItem.id === itemId);
+    
+    if (existingItem) {
+        existingItem.quantity += 1;
+    } else {
+        cartItems.push({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: 1
+        });
+    }
+
+    // Update the global cart in the HTML
+    if (window.cart && typeof window.cart.addItem === 'function') {
+        window.cart.addItem({
+            id: item.id,
+            name: item.name,
+            price: item.price
+        });
+    }
+    
+    renderMenu();
+    showToast(`${item.name} added to cart`);
+}
+
+function removeFromCart(itemId) {
+    const index = cartItems.findIndex(item => item.id === itemId);
+    if (index !== -1) {
+        const item = cartItems[index];
+        if (item.quantity > 1) {
+            item.quantity -= 1;
+        } else {
+            cartItems.splice(index, 1);
+        }
+        
+        // Update the global cart in the HTML
+        if (window.cart && typeof window.cart.removeItem === 'function') {
+            window.cart.removeItem(itemId);
+        }
+        
+        renderMenu();
+        showToast(`${item.name} quantity updated`);
+    }
+}
+
+function clearCart() {
+    cartItems = [];
+    if (window.cart && typeof window.cart.clear === 'function') {
+        window.cart.clear();
+    }
+    renderMenu();
+}
+
+function getFilteredItems() {
     return items.filter(it => {
         const okCat = activeCat === "All" || it.cat === activeCat;
-        const okTerm = !term || 
-            it.name.toLowerCase().includes(term) || 
-            it.bullets.join(" ").toLowerCase().includes(term);
-        return okCat && okTerm;
+        if (!searchTerm.trim()) return okCat;
+        
+        const term = searchTerm.toLowerCase();
+        const nameMatch = it.name.toLowerCase().includes(term);
+        const bulletMatch = it.bullets.some(bullet => bullet.toLowerCase().includes(term));
+        const tagMatch = it.tag.toLowerCase().includes(term);
+        
+        return okCat && (nameMatch || bulletMatch || tagMatch);
     });
+}
+
+function showToast(message, type = 'success') {
+    // Use the toast system from HTML if available
+    if (window.showToast) {
+        window.showToast(message, type);
+        return;
+    }
+    
+    // Fallback toast
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#1f6f3a'};
+        color: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 // =============== RENDER FUNCTIONS ===============
-function render() {
+function renderMenu() {
+    const grid = document.getElementById("grid");
     if (!grid) return;
     
-    grid.innerHTML = "";
-    filtered().forEach(it => {
-        const div = document.createElement("div");
-        div.className = "card";
-        
-        const imageUrl = getImageUrl(it.id);
-        const qty = cart.get(it.id) || 0;
-
-        div.innerHTML = `
-            <img class="bg" src="${imageUrl}" alt="${it.name}" loading="lazy"
-                 onerror="this.onerror=null; this.src='${RESTAURANT_CONFIG.fallbackImage}';" />
-            <div class="shade"></div>
-            <div class="overlay">
-                <div class="topline">
-                    <div>
-                        <div class="name">${it.name}</div>
-                        <div class="meta">
-                            <span class="tag">${it.tag}</span>
-                            <span class="tag">${money(it.price)}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bottom">
-                    <ul class="bullets">
-                        ${it.bullets.map(b => `<li>${b}</li>`).join("")}
-                    </ul>
-                    <div class="row" style="justify-content: space-between;">
-                        <div>
-                            <div class="price">${money(it.price)}</div>
-                            <div class="small">${qty > 0 ? `In order: ${qty}` : "Tap Order to add"}</div>
-                        </div>
-                        <button class="btn" data-add="${it.id}">🛒 Order</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        grid.appendChild(div);
-    });
-
-    grid.querySelectorAll("[data-add]").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const id = btn.getAttribute("data-add");
-            cart.set(id, (cart.get(id) || 0) + 1);
-            updateCartUI();
-            render();
-        });
-    });
-}
-
-function updateCartUI() {
-    const entries = Array.from(cart.entries()).filter(([, qty]) => qty > 0);
-    const totalQty = entries.reduce((s, [, q]) => s + q, 0);
-    const total = entries.reduce((s, [id, qty]) => {
-        const it = items.find(x => x.id === id);
-        return s + (it ? it.price * qty : 0);
-    }, 0);
-
-    countEl.textContent = totalQty;
-    summaryEl.textContent = totalQty ? `${totalQty} item(s) • ${money(total)}` : "No items yet";
-    totalEl.textContent = `Total: ${money(total)}`;
-
-    cartLines.innerHTML = "";
-    if (!entries.length) {
-        cartLines.innerHTML = `<div style="color:rgba(255,255,255,.75)">Your cart is empty. Add items from the menu.</div>`;
-        return;
-    }
-
-    entries.forEach(([id, qty]) => {
-        const it = items.find(x => x.id === id);
-        const line = document.createElement("div");
-        line.className = "line";
-        line.innerHTML = `
-            <div class="info">
-                <b>${it.name}</b>
-                <small>${money(it.price)} each</small>
-            </div>
-            <div class="qty">
-                <button class="iconBtn" data-dec="${id}">−</button>
-                <b>${qty}</b>
-                <button class="iconBtn" data-inc="${id}">+</button>
-            </div>
-        `;
-        cartLines.appendChild(line);
-    });
-
-    cartLines.querySelectorAll("[data-inc]").forEach(b => {
-        b.addEventListener("click", () => {
-            const id = b.getAttribute("data-inc");
-            cart.set(id, (cart.get(id) || 0) + 1);
-            updateCartUI();
-            render();
-        });
-    });
+    const filteredItems = getFilteredItems();
     
-    cartLines.querySelectorAll("[data-dec]").forEach(b => {
-        b.addEventListener("click", () => {
-            const id = b.getAttribute("data-dec");
-            const n = (cart.get(id) || 0) - 1;
-            if (n <= 0) cart.delete(id); 
-            else cart.set(id, n);
-            updateCartUI();
-            render();
-        });
-    });
-}
-
-// =============== WHATSAPP FUNCTION ===============
-function buildWhatsAppText() {
-    const entries = Array.from(cart.entries()).filter(([, qty]) => qty > 0);
-    if (!entries.length) return "";
-
-    let total = 0;
-    const lines = entries.map(([id, qty]) => {
-        const it = items.find(x => x.id === id);
-        const lineTotal = it.price * qty;
-        total += lineTotal;
-        return `• ${it.name} x${qty} = ${money(lineTotal)}`;
-    });
-
-    return [
-        `Hi ${RESTAURANT_CONFIG.name}, I'd like to place an order:`,
-        "",
-        ...lines,
-        "",
-        `TOTAL: ${money(total)}`,
-        "",
-        "Name: ______",
-        "Location/Table: ______",
-        "Preferred time: ______",
-        "",
-        "Kindly confirm and share M-PESA payment details."
-    ].join("\n");
-}
-
-function waCheckout() {
-    const msg = buildWhatsAppText();
-    if (!msg) {
-        alert("Please add at least one item to your order.");
+    if (filteredItems.length === 0) {
+        grid.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <div class="icon">🔍</div>
+                <h3>No items found</h3>
+                <p>Try a different search term or category</p>
+            </div>
+        `;
         return;
     }
-    const url = `https://wa.me/${RESTAURANT_CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`;
-    window.open(url, "_blank");
+    
+    grid.innerHTML = filteredItems.map(item => {
+        const qty = getItemQuantity(item.id);
+        const imageUrl = getImageUrl(item.id);
+        
+        return `
+            <div class="card">
+                <img class="bg" 
+                     src="${imageUrl}" 
+                     alt="${item.name}" 
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='${RESTAURANT_CONFIG.fallbackImage}';">
+                <div class="shade"></div>
+                <div class="overlay">
+                    <div class="topline">
+                        <div>
+                            <div class="name">${item.name}</div>
+                            <div class="meta">
+                                <span class="tag">${item.tag}</span>
+                                <span class="tag">${money(item.price)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottom">
+                        <ul class="bullets">
+                            ${item.bullets.map(bullet => `<li>${bullet}</li>`).join('')}
+                        </ul>
+                        <div class="row">
+                            <div>
+                                <div class="price">${money(item.price)}</div>
+                                <div class="small">${qty > 0 ? `In order: ${qty}` : "Tap Order to add"}</div>
+                            </div>
+                            <button class="btn" data-add="${item.id}" aria-label="Add ${item.name} to cart">
+                                🛒 ${qty > 0 ? 'Add More' : 'Order'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Add event listeners to all "Add to cart" buttons
+    grid.querySelectorAll('[data-add]').forEach(button => {
+        button.addEventListener('click', () => {
+            const itemId = button.getAttribute('data-add');
+            addToCart(itemId);
+        });
+    });
 }
 
 // =============== EVENT LISTENERS ===============
 function setupEventListeners() {
-    pills.forEach(p => {
-        p.addEventListener("click", () => {
-            pills.forEach(x => x.classList.remove("active"));
-            p.classList.add("active");
-            activeCat = p.getAttribute("data-cat");
-            render();
+    // Category filter buttons
+    document.querySelectorAll('.pill[data-cat]').forEach(pill => {
+        pill.addEventListener('click', () => {
+            // Update active category
+            activeCat = pill.getAttribute('data-cat');
+            
+            // Update UI
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            
+            // Render menu
+            renderMenu();
         });
     });
-
-    q.addEventListener("input", render);
-
-    document.getElementById("openCart").addEventListener("click", () => {
-        modal.classList.add("open");
-        updateCartUI();
-    });
     
-    document.getElementById("closeCart").addEventListener("click", () => {
-        modal.classList.remove("open");
-    });
+    // Search input
+    const searchInput = document.getElementById('q');
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', () => {
+            searchTerm = searchInput.value.trim();
+            
+            // Debounce search to improve performance
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                renderMenu();
+            }, 300);
+        });
+        
+        // Clear search button (optional)
+        const searchClear = document.createElement('button');
+        searchClear.innerHTML = '×';
+        searchClear.style.cssText = `
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 4px;
+            display: ${searchInput.value ? 'block' : 'none'};
+        `;
+        searchClear.setAttribute('aria-label', 'Clear search');
+        searchClear.addEventListener('click', () => {
+            searchInput.value = '';
+            searchTerm = '';
+            searchClear.style.display = 'none';
+            renderMenu();
+        });
+        
+        searchInput.parentNode.appendChild(searchClear);
+        
+        searchInput.addEventListener('input', () => {
+            searchClear.style.display = searchInput.value ? 'block' : 'none';
+        });
+    }
     
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal) modal.classList.remove("open");
-    });
-
-    document.getElementById("waCheckout").addEventListener("click", waCheckout);
-    document.getElementById("waCheckout2").addEventListener("click", waCheckout);
+    // Initialize with "All" category active
+    const allButton = document.querySelector('.pill[data-cat="All"]');
+    if (allButton) {
+        allButton.click();
+    }
 }
 
 // =============== INITIALIZATION ===============
-function init() {
-    // Initialize DOM elements
-    grid = document.getElementById("grid");
-    q = document.getElementById("q");
-    pills = Array.from(document.querySelectorAll(".pill"));
-    countEl = document.getElementById("count");
-    summaryEl = document.getElementById("summary");
-    modal = document.getElementById("modal");
-    cartLines = document.getElementById("cartLines");
-    totalEl = document.getElementById("total");
-
-    // Set up event listeners
+function initMenu() {
+    // Remove loading state
+    const loadingState = document.getElementById('loadingState');
+    if (loadingState) {
+        loadingState.style.display = 'none';
+    }
+    
+    // Setup event listeners
     setupEventListeners();
-
+    
     // Initial render
-    render();
-    updateCartUI();
+    renderMenu();
+    
+    // Sync with HTML cart system
+    if (window.cart && window.cart.getItems) {
+        const htmlCartItems = window.cart.getItems();
+        if (htmlCartItems && htmlCartItems.length > 0) {
+            cartItems = htmlCartItems.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity || 1
+            }));
+        }
+    }
+    
+    console.log('Menu initialized successfully');
 }
+
+// =============== EXPOSE FUNCTIONS TO WINDOW ===============
+// Make functions available to the HTML script
+window.initMenu = initMenu;
+window.clearCart = clearCart;
+
+// For backward compatibility with original HTML
+window.getCartItems = () => cartItems.map(item => ({
+    name: item.name,
+    price: item.price,
+    qty: item.quantity
+}));
+
+window.getCartTotal = () => cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+window.getCartCount = () => cartItems.reduce((count, item) => count + item.quantity, 0);
 
 // =============== START APPLICATION ===============
 // Wait for DOM to be fully loaded
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', initMenu);
 } else {
-    init();
-
+    initMenu();
 }
-
