@@ -1663,6 +1663,41 @@ document.addEventListener('DOMContentLoaded', function() {
               if (window.finalizeOrderWithPayment) {
                 window.finalizeOrderWithPayment("M-Pesa via Paystack", response.reference);
               }
+              
+              // AUTO-FORWARD ORDER TO WAITER'S WHATSAPP
+              setTimeout(function() {
+                if (window.lastOrderPayload) {
+                  const payload = window.lastOrderPayload;
+                  const items = payload.items || [];
+                  const lines = items.map(it => {
+                    return `• ${it.name} x${it.quantity} — KES ${(it.price * it.quantity).toLocaleString()}`;
+                  });
+                  
+                  const waiterMsg = [
+                    `🔔 *NEW ORDER RECEIVED*`,
+                    ``,
+                    `📋 *Order ID:* ${payload.orderId}`,
+                    `🏠 *Table:* ${payload.table}`,
+                    `💰 *Payment:* ${payload.paymentLabel}`,
+                    payload.paymentReference ? `🔢 *Payment Ref:* ${payload.paymentReference}` : '',
+                    `💵 *Total:* KES ${payload.total.toLocaleString()}`,
+                    ``,
+                    `📝 *Order Items:*`,
+                    ...lines,
+                    ``,
+                    `⏱️ *Time:* ${new Date().toLocaleTimeString()}`,
+                    `📅 *Date:* ${new Date().toLocaleDateString()}`,
+                    ``,
+                    `✅ *Payment Confirmed via Paystack*`
+                  ].filter(Boolean).join("\n");
+                  
+                  const encodedMsg = encodeURIComponent(waiterMsg);
+                  const whatsappUrl = `https://wa.me/254740940395?text=${encodedMsg}`;
+                  
+                  console.log('Auto-forwarding order to waiter WhatsApp...');
+                  window.open(whatsappUrl, '_blank');
+                }
+              }, 1000);
             },
             onClose: function() {
               console.log('Payment modal closed');
@@ -1724,12 +1759,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Payment confirmation buttons
+  // Payment confirmation buttons with auto WhatsApp forwarding
   const confirmMpesa = el('confirmMpesa');
   if (confirmMpesa) {
     confirmMpesa.addEventListener('click', function() {
       if (window.finalizeOrderWithPayment) {
         window.finalizeOrderWithPayment("M-Pesa Till");
+        
+        // Auto-forward to waiter's WhatsApp
+        setTimeout(function() {
+          sendOrderToWaiterWhatsApp();
+        }, 1000);
       }
     });
   }
@@ -1739,6 +1779,11 @@ document.addEventListener('DOMContentLoaded', function() {
     confirmBank.addEventListener('click', function() {
       if (window.finalizeOrderWithPayment) {
         window.finalizeOrderWithPayment("Bank Transfer");
+        
+        // Auto-forward to waiter's WhatsApp
+        setTimeout(function() {
+          sendOrderToWaiterWhatsApp();
+        }, 1000);
       }
     });
   }
@@ -1748,8 +1793,51 @@ document.addEventListener('DOMContentLoaded', function() {
     confirmCash.addEventListener('click', function() {
       if (window.finalizeOrderWithPayment) {
         window.finalizeOrderWithPayment("Cash");
+        
+        // Auto-forward to waiter's WhatsApp
+        setTimeout(function() {
+          sendOrderToWaiterWhatsApp();
+        }, 1000);
       }
     });
+  }
+  
+  // Function to send order to waiter's WhatsApp
+  function sendOrderToWaiterWhatsApp() {
+    if (!window.lastOrderPayload) {
+      console.error('No order payload available');
+      return;
+    }
+    
+    const payload = window.lastOrderPayload;
+    const items = payload.items || [];
+    const lines = items.map(it => {
+      return `• ${it.name} x${it.quantity} — KES ${(it.price * it.quantity).toLocaleString()}`;
+    });
+    
+    const waiterMsg = [
+      `🔔 *NEW ORDER RECEIVED*`,
+      ``,
+      `📋 *Order ID:* ${payload.orderId}`,
+      `🏠 *Table:* ${payload.table}`,
+      `💰 *Payment:* ${payload.paymentLabel}`,
+      payload.paymentReference ? `🔢 *Payment Ref:* ${payload.paymentReference}` : '',
+      `💵 *Total:* KES ${payload.total.toLocaleString()}`,
+      ``,
+      `📝 *Order Items:*`,
+      ...lines,
+      ``,
+      `⏱️ *Time:* ${new Date().toLocaleTimeString()}`,
+      `📅 *Date:* ${new Date().toLocaleDateString()}`,
+      ``,
+      `✅ *Order Confirmed*`
+    ].filter(Boolean).join("\n");
+    
+    const encodedMsg = encodeURIComponent(waiterMsg);
+    const whatsappUrl = `https://wa.me/254740940395?text=${encodedMsg}`;
+    
+    console.log('Auto-forwarding order to waiter WhatsApp: +254740940395');
+    window.open(whatsappUrl, '_blank');
   }
   
   // New order button
