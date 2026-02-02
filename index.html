@@ -1598,77 +1598,106 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
-      // Check if PaystackPop is loaded
-      if (typeof PaystackPop === 'undefined') {
-        console.error('PaystackPop is not loaded!');
-        if (window.showToast) {
-          window.showToast('Payment system not loaded. Please refresh the page.', 'error');
-        }
-        alert('Payment system not loaded. Please refresh the page.');
-        return;
-      }
-      
-      // Generate unique reference
-      const reference = `GS-${table.replace(/\s+/g, '')}-${Date.now()}`;
-      console.log('Payment reference:', reference);
-      
-      try {
-        // Initialize Paystack payment
-        const handler = PaystackPop.setup({
-          key: 'pk_live_1aede7667d50adb2147614cb580a9513552c0aa9', // Your Paystack public key
-          email: `${apiPhone}@goldenstar.co.ke`, // Use phone as email
-          amount: totalAmount,
-          currency: 'KES',
-          ref: reference,
-          metadata: {
-            custom_fields: [
-              {
-                display_name: "Phone Number",
-                variable_name: "phone",
-                value: apiPhone
-              },
-              {
-                display_name: "Table/Service",
-                variable_name: "table",
-                value: table || "Take Away"
-              },
-              {
-                display_name: "Order Items",
-                variable_name: "order_items",
-                value: typeof window.getCartItems === 'function' 
-                  ? window.getCartItems().map(item => `${item.name} x${item.quantity}`).join(', ')
-                  : ''
-              }
-            ]
-          },
-          callback: function(response) {
-            console.log('Payment successful:', response);
-            if (window.showToast) {
-              window.showToast('Payment successful! Processing order...', 'success');
-            }
-            
-            // Finalize order
-            if (window.finalizeOrderWithPayment) {
-              window.finalizeOrderWithPayment("M-Pesa via Paystack", response.reference);
-            }
-          },
-          onClose: function() {
-            console.log('Payment modal closed');
-            if (window.showToast) {
-              window.showToast('Payment cancelled', 'warning');
-            }
+      // Function to initialize payment
+      const initPayment = function() {
+        // Check if PaystackPop is loaded
+        if (typeof PaystackPop === 'undefined') {
+          console.error('PaystackPop is not loaded!');
+          console.log('Checking if script tag exists...');
+          const scriptTag = document.querySelector('script[src*="paystack"]');
+          console.log('Paystack script tag:', scriptTag);
+          
+          if (window.showToast) {
+            window.showToast('Payment system not loaded. Please refresh the page.', 'error');
           }
-        });
-        
-        console.log('Opening Paystack iframe...');
-        handler.openIframe();
-        
-      } catch (error) {
-        console.error('Error initializing Paystack:', error);
-        if (window.showToast) {
-          window.showToast('Payment initialization failed: ' + error.message, 'error');
+          alert('Payment system not loaded. Please refresh the page and try again.');
+          return false;
         }
-        alert('Payment initialization failed. Please try again.');
+        
+        // Generate unique reference
+        const reference = `GS-${table.replace(/\s+/g, '')}-${Date.now()}`;
+        console.log('Payment reference:', reference);
+        
+        try {
+          console.log('Initializing PaystackPop.setup...');
+          
+          // Initialize Paystack payment
+          const handler = PaystackPop.setup({
+            key: 'pk_live_1aede7667d50adb2147614cb580a9513552c0aa9', // Your Paystack public key
+            email: `${apiPhone}@goldenstar.co.ke`, // Use phone as email
+            amount: totalAmount,
+            currency: 'KES',
+            ref: reference,
+            channels: ['mobile_money'], // Force M-Pesa
+            metadata: {
+              custom_fields: [
+                {
+                  display_name: "Phone Number",
+                  variable_name: "phone",
+                  value: apiPhone
+                },
+                {
+                  display_name: "Table/Service",
+                  variable_name: "table",
+                  value: table || "Take Away"
+                },
+                {
+                  display_name: "Order Items",
+                  variable_name: "order_items",
+                  value: typeof window.getCartItems === 'function' 
+                    ? window.getCartItems().map(item => `${item.name} x${item.quantity}`).join(', ')
+                    : ''
+                }
+              ]
+            },
+            callback: function(response) {
+              console.log('Payment successful:', response);
+              if (window.showToast) {
+                window.showToast('Payment successful! Processing order...', 'success');
+              }
+              
+              // Close payment modal
+              el('paymentModal').classList.remove('open');
+              
+              // Finalize order
+              if (window.finalizeOrderWithPayment) {
+                window.finalizeOrderWithPayment("M-Pesa via Paystack", response.reference);
+              }
+            },
+            onClose: function() {
+              console.log('Payment modal closed');
+              if (window.showToast) {
+                window.showToast('Payment cancelled', 'warning');
+              }
+            }
+          });
+          
+          console.log('Paystack handler created:', handler);
+          console.log('Opening Paystack iframe...');
+          handler.openIframe();
+          console.log('openIframe() called successfully');
+          
+          return true;
+          
+        } catch (error) {
+          console.error('Error initializing Paystack:', error);
+          console.error('Error stack:', error.stack);
+          if (window.showToast) {
+            window.showToast('Payment initialization failed: ' + error.message, 'error');
+          }
+          alert('Payment initialization failed: ' + error.message + '. Please try again.');
+          return false;
+        }
+      };
+      
+      // Try to initialize payment immediately
+      if (!initPayment()) {
+        // If failed, wait a bit and try again (in case script is still loading)
+        console.log('First attempt failed, retrying in 1 second...');
+        setTimeout(function() {
+          console.log('Retrying payment initialization...');
+          initPayment();
+        }, 1000);
       }
     });
   }
@@ -1749,6 +1778,15 @@ document.addEventListener('DOMContentLoaded', function() {
   setTimeout(function() {
     refreshPaymentPanels();
     updateModalTable(); // Also update modal table on initial load
+    
+    // Check if Paystack script loaded
+    console.log('Checking Paystack availability...');
+    console.log('PaystackPop defined?', typeof PaystackPop !== 'undefined');
+    if (typeof PaystackPop === 'undefined') {
+      console.warn('WARNING: PaystackPop not loaded yet. Will retry when payment is attempted.');
+    } else {
+      console.log('✓ PaystackPop loaded successfully');
+    }
   }, 500);
   
   // Override updateCartUI to also update modal table and payment panels
