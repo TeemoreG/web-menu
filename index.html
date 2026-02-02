@@ -1565,24 +1565,110 @@ document.addEventListener('DOMContentLoaded', function() {
   const paystackBtn = el('paystackPayBtn');
   if (paystackBtn) {
     paystackBtn.addEventListener('click', function() {
+      console.log('Paystack payment button clicked');
+      
       const phone = el('customerPhone')?.value || '';
+      console.log('Phone number from input:', phone);
       
       // Validate phone number
       if (!phone || phone.length !== 10 || !phone.startsWith('07')) {
         if (window.showToast) {
           window.showToast('Please enter a valid 10-digit phone number starting with 07', 'error');
         }
+        alert('Please enter a valid 10-digit phone number starting with 07');
         return;
       }
       
-      // Convert 07XX to 2547XX for API
+      // Convert 07XX to 254XX for API
       const apiPhone = '254' + phone.substring(1);
+      console.log('Converted phone for API:', apiPhone);
       
-      // Store in window for menu.js to use
-      window.paystackCustomerPhone = apiPhone;
+      // Get cart details
+      const totalAmount = (typeof window.getCartTotal === 'function' ? window.getCartTotal() : 0) * 100; // Convert to kobo
+      const table = getCurrentTable();
       
-      if (window.initializePaystackPayment) {
-        window.initializePaystackPayment();
+      console.log('Total amount (kobo):', totalAmount);
+      console.log('Table:', table);
+      
+      if (totalAmount <= 0) {
+        if (window.showToast) {
+          window.showToast('Your cart is empty', 'error');
+        }
+        alert('Your cart is empty');
+        return;
+      }
+      
+      // Check if PaystackPop is loaded
+      if (typeof PaystackPop === 'undefined') {
+        console.error('PaystackPop is not loaded!');
+        if (window.showToast) {
+          window.showToast('Payment system not loaded. Please refresh the page.', 'error');
+        }
+        alert('Payment system not loaded. Please refresh the page.');
+        return;
+      }
+      
+      // Generate unique reference
+      const reference = `GS-${table.replace(/\s+/g, '')}-${Date.now()}`;
+      console.log('Payment reference:', reference);
+      
+      try {
+        // Initialize Paystack payment
+        const handler = PaystackPop.setup({
+          key: 'pk_live_1aede7667d50adb2147614cb580a9513552c0aa9', // Your Paystack public key
+          email: `${apiPhone}@goldenstar.co.ke`, // Use phone as email
+          amount: totalAmount,
+          currency: 'KES',
+          ref: reference,
+          metadata: {
+            custom_fields: [
+              {
+                display_name: "Phone Number",
+                variable_name: "phone",
+                value: apiPhone
+              },
+              {
+                display_name: "Table/Service",
+                variable_name: "table",
+                value: table || "Take Away"
+              },
+              {
+                display_name: "Order Items",
+                variable_name: "order_items",
+                value: typeof window.getCartItems === 'function' 
+                  ? window.getCartItems().map(item => `${item.name} x${item.quantity}`).join(', ')
+                  : ''
+              }
+            ]
+          },
+          callback: function(response) {
+            console.log('Payment successful:', response);
+            if (window.showToast) {
+              window.showToast('Payment successful! Processing order...', 'success');
+            }
+            
+            // Finalize order
+            if (window.finalizeOrderWithPayment) {
+              window.finalizeOrderWithPayment("M-Pesa via Paystack", response.reference);
+            }
+          },
+          onClose: function() {
+            console.log('Payment modal closed');
+            if (window.showToast) {
+              window.showToast('Payment cancelled', 'warning');
+            }
+          }
+        });
+        
+        console.log('Opening Paystack iframe...');
+        handler.openIframe();
+        
+      } catch (error) {
+        console.error('Error initializing Paystack:', error);
+        if (window.showToast) {
+          window.showToast('Payment initialization failed: ' + error.message, 'error');
+        }
+        alert('Payment initialization failed. Please try again.');
       }
     });
   }
