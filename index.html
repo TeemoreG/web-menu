@@ -1075,7 +1075,7 @@
 <div class="modal" id="cartModal" role="dialog" aria-labelledby="cartTitle" aria-hidden="true">
   <div class="sheet">
     <div class="sheetHead">
-      <b id="cartTitle">Order Summary • <span id="modalTable">Table: --</span></b>
+      <b id="cartTitle">Order Summary • <span id="modalTable">--</span></b>
       <button class="btn secondary" id="closeCart" aria-label="Close order summary">Close</button>
     </div>
     <div class="sheetBody" id="cartLines">
@@ -1108,8 +1108,8 @@
       <div class="payment-options" id="paymentOptions">
         <div class="payment-option" data-method="paystack">
           <div class="icon">📱</div>
-          <div class="name">Mpesa auto</div>
-          <div class="desc">Auto-pay via M-Pesa</div>
+          <div class="name">Pay with M-Pesa</div>
+          <div class="desc">Auto-pay via M-Pesa STK</div>
         </div>
 
         <div class="payment-option" data-method="mpesa">
@@ -1133,7 +1133,7 @@
 
       <!-- Paystack STK Push Payment Details -->
       <div class="payment-details hidden" id="paystackDetails">
-        <h4>Pay with M-Pesa</h4>
+        <h4>Pay with M-Pesa (STK Push)</h4>
         
         <div style="margin:20px 0;">
           <label for="customerPhone" style="display:block; margin-bottom:8px; font-weight:600;">
@@ -1141,10 +1141,11 @@
           </label>
           <input type="tel" 
                  id="customerPhone" 
-                 placeholder="2547XXXXXXXX"
+                 placeholder="07XXXXXXXX"
                  class="phone-input"
-                 value="2547"
+                 value="07"
                  required
+                 maxlength="10"
                  aria-describedby="phoneHelp">
           <p id="phoneHelp" style="font-size:12px; color:#666; margin-top:5px;">
             You'll receive an M-Pesa STK Push prompt on this phone
@@ -1173,7 +1174,7 @@
         </div>
         
         <button class="btn success large" id="paystackPayBtn">
-          📱 Pay with M-Pesa via Paystack
+          📱 Pay with M-Pesa
         </button>
         
         <p style="font-size:12px; color:var(--muted2); margin-top:12px;">
@@ -1348,40 +1349,112 @@
 <!-- Event listeners that connect the HTML to menu.js -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Helper function to get element by ID
+  function el(id) {
+    return document.getElementById(id);
+  }
+  
+  // Helper function to get current table
+  function getCurrentTable() {
+    return el('tableNumber')?.value || '';
+  }
+  
+  // Helper function to get cart total from menu.js
+  function getCartTotal() {
+    // Use the function exposed by menu.js
+    if (typeof window.getCartTotal === 'function') {
+      return window.getCartTotal();
+    }
+    // Fallback: try to access cart directly (shouldn't happen)
+    if (typeof window.cart !== 'undefined' && window.cart.length > 0) {
+      return window.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    }
+    return 0;
+  }
+  
+  // Helper function to format KES
+  function fmtKES(amount) {
+    return `KES ${amount.toLocaleString()}`;
+  }
+  
+  // Helper function to generate order reference
+  function generateOrderRef() {
+    const table = getCurrentTable() || 'NONE';
+    const timestamp = Date.now().toString().slice(-6);
+    return `GS-${table.replace(/\s+/g, '')}-${timestamp}`;
+  }
+  
+  // Update all payment panels with current values
+  function refreshPaymentPanels() {
+    const table = getCurrentTable();
+    const total = getCartTotal();
+    const orderRef = generateOrderRef();
+    
+    // Paystack panel
+    if (el('paystackTable')) el('paystackTable').textContent = table || '--';
+    if (el('paystackAmount')) el('paystackAmount').textContent = fmtKES(total);
+    if (el('paystackReference')) el('paystackReference').textContent = orderRef;
+    
+    // MPesa panel
+    if (el('mpesaRef')) el('mpesaRef').textContent = `TABLE-${table || '--'}`;
+    if (el('mpesaAmount')) el('mpesaAmount').textContent = fmtKES(total);
+    if (el('mpesaTable')) el('mpesaTable').textContent = `TABLE-${table || '--'}`;
+    
+    // Bank panel
+    if (el('bankRef')) el('bankRef').textContent = `TABLE-${table || '--'}`;
+    if (el('bankAmount')) el('bankAmount').textContent = fmtKES(total);
+    if (el('bankTable')) el('bankTable').textContent = `TABLE-${table || '--'}`;
+    
+    // Cash panel
+    if (el('cashAmount')) el('cashAmount').textContent = fmtKES(total);
+    if (el('cashTable')) el('cashTable').textContent = table || '--';
+  }
+  
+  // Update table display in cart modal
+  function updateModalTable() {
+    const table = getCurrentTable();
+    if (el('modalTable')) {
+      el('modalTable').textContent = table ? `Table: ${table}` : '--';
+    }
+  }
+  
   // Open cart button
-  const openCartBtn = document.getElementById('openCart');
+  const openCartBtn = el('openCart');
   if (openCartBtn) {
     openCartBtn.addEventListener('click', function() {
-      document.getElementById('cartModal').classList.add('open');
+      updateModalTable(); // Update table BEFORE opening modal
       if (window.updateCartUI) {
         window.updateCartUI();
       }
+      el('cartModal').classList.add('open');
     });
   }
   
   // Close cart button
-  const closeCartBtn = document.getElementById('closeCart');
+  const closeCartBtn = el('closeCart');
   if (closeCartBtn) {
     closeCartBtn.addEventListener('click', function() {
-      document.getElementById('cartModal').classList.remove('open');
+      el('cartModal').classList.remove('open');
     });
   }
   
   // Close payment button
-  const closePaymentBtn = document.getElementById('closePayment');
+  const closePaymentBtn = el('closePayment');
   if (closePaymentBtn) {
     closePaymentBtn.addEventListener('click', function() {
-      document.getElementById('paymentModal').classList.remove('open');
+      el('paymentModal').classList.remove('open');
     });
   }
   
   // Table change
-  const tableSelect = document.getElementById('tableNumber');
+  const tableSelect = el('tableNumber');
   if (tableSelect) {
     tableSelect.addEventListener('change', function() {
       if (window.updateTableDisplay) {
         window.updateTableDisplay(this.value);
       }
+      updateModalTable();
+      refreshPaymentPanels();
     });
   }
   
@@ -1398,12 +1471,52 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Search
-  const searchInput = document.getElementById('q');
+  const searchInput = el('q');
   if (searchInput) {
     searchInput.addEventListener('input', function() {
       if (window.searchMenu) {
         window.searchMenu(this.value);
       }
+    });
+  }
+  
+  // Proceed to payment button
+  const proceedBtn = el('proceedToPayment');
+  if (proceedBtn) {
+    proceedBtn.addEventListener('click', function() {
+      const table = getCurrentTable();
+      if (!table) {
+        if (window.showToast) {
+          window.showToast('Please select a table first', 'error');
+        }
+        return;
+      }
+      el('cartModal').classList.remove('open');
+      el('paymentModal').classList.add('open');
+      refreshPaymentPanels();
+      
+      // Auto-select Paystack (Pay with M-Pesa) as default
+      setTimeout(function() {
+        document.querySelectorAll(".payment-option").forEach(x => x.classList.remove("selected"));
+        const paystackOption = document.querySelector('.payment-option[data-method="paystack"]');
+        if (paystackOption) {
+          paystackOption.classList.add("selected");
+          window.selectedPayment = "paystack";
+          
+          // Hide all panels
+          ["paystack","mpesa","bank","cash"].forEach(m => {
+            const detailsEl = el(m + "Details");
+            if (detailsEl) detailsEl.classList.add("hidden");
+          });
+          
+          // Show Paystack panel
+          const paystackDetails = el("paystackDetails");
+          if (paystackDetails) paystackDetails.classList.remove("hidden");
+          
+          // Refresh amounts again
+          refreshPaymentPanels();
+        }
+      }, 150); // Wait a bit longer than menu.js's 100ms timeout
     });
   }
   
@@ -1416,23 +1529,58 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Show relevant panel
       ["paystack","mpesa","bank","cash"].forEach(m => {
-        const detailsEl = document.getElementById(m + "Details");
+        const detailsEl = el(m + "Details");
         if (detailsEl) detailsEl.classList.add("hidden");
       });
-      const selectedDetails = document.getElementById(window.selectedPayment + "Details");
+      const selectedDetails = el(window.selectedPayment + "Details");
       if (selectedDetails) selectedDetails.classList.remove("hidden");
       
-      // Update amounts in displayed panel
-      if (window.refreshAmountsInPaymentPanels) {
-        window.refreshAmountsInPaymentPanels();
-      }
+      // Refresh amounts in displayed panel
+      refreshPaymentPanels();
     });
   });
   
+  // Phone input formatting (ensure it stays as 07XX format)
+  const phoneInput = el('customerPhone');
+  if (phoneInput) {
+    phoneInput.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+      
+      // Ensure it starts with 07
+      if (!value.startsWith('07')) {
+        value = '07' + value.replace(/^0*7*/, '');
+      }
+      
+      // Limit to 10 digits
+      value = value.substring(0, 10);
+      
+      e.target.value = value;
+    });
+    
+    // Set initial value
+    phoneInput.value = '07';
+  }
+  
   // Paystack payment button
-  const paystackBtn = document.getElementById('paystackPayBtn');
+  const paystackBtn = el('paystackPayBtn');
   if (paystackBtn) {
     paystackBtn.addEventListener('click', function() {
+      const phone = el('customerPhone')?.value || '';
+      
+      // Validate phone number
+      if (!phone || phone.length !== 10 || !phone.startsWith('07')) {
+        if (window.showToast) {
+          window.showToast('Please enter a valid 10-digit phone number starting with 07', 'error');
+        }
+        return;
+      }
+      
+      // Convert 07XX to 2547XX for API
+      const apiPhone = '254' + phone.substring(1);
+      
+      // Store in window for menu.js to use
+      window.paystackCustomerPhone = apiPhone;
+      
       if (window.initializePaystackPayment) {
         window.initializePaystackPayment();
       }
@@ -1445,8 +1593,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!btn) return;
     
     let v = btn.getAttribute("data-copy");
-    if (!v && btn.id === "copyMpesaRef") v = document.getElementById("mpesaRef")?.textContent || "";
-    if (!v && btn.id === "copyBankRef") v = document.getElementById("bankRef")?.textContent || "";
+    if (!v && btn.id === "copyMpesaRef") v = el("mpesaRef")?.textContent || "";
+    if (!v && btn.id === "copyBankRef") v = el("bankRef")?.textContent || "";
+    if (!v && btn.id === "copyMpesaAmount") v = String(getCartTotal());
+    if (!v && btn.id === "copyBankAmount") v = String(getCartTotal());
     
     if (v) {
       navigator.clipboard.writeText(v || "").then(() => {
@@ -1460,32 +1610,38 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Payment confirmation buttons
-  const confirmMpesa = document.getElementById('confirmMpesa');
+  const confirmMpesa = el('confirmMpesa');
   if (confirmMpesa) {
     confirmMpesa.addEventListener('click', function() {
-      // This will be handled by menu.js
+      if (window.finalizeOrderWithPayment) {
+        window.finalizeOrderWithPayment("M-Pesa Till");
+      }
     });
   }
   
-  const confirmBank = document.getElementById('confirmBank');
+  const confirmBank = el('confirmBank');
   if (confirmBank) {
     confirmBank.addEventListener('click', function() {
-      // This will be handled by menu.js
+      if (window.finalizeOrderWithPayment) {
+        window.finalizeOrderWithPayment("Bank Transfer");
+      }
     });
   }
   
-  const confirmCash = document.getElementById('confirmCash');
+  const confirmCash = el('confirmCash');
   if (confirmCash) {
     confirmCash.addEventListener('click', function() {
-      // This will be handled by menu.js
+      if (window.finalizeOrderWithPayment) {
+        window.finalizeOrderWithPayment("Cash");
+      }
     });
   }
   
   // New order button
-  const newOrderBtn = document.getElementById('newOrder');
+  const newOrderBtn = el('newOrder');
   if (newOrderBtn) {
     newOrderBtn.addEventListener('click', function() {
-      document.getElementById('successModal').classList.remove('open');
+      el('successModal').classList.remove('open');
       if (window.clearCart) {
         window.clearCart();
       }
@@ -1493,12 +1649,81 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Send WhatsApp button
-  const sendWhatsAppBtn = document.getElementById('sendWhatsApp');
+  const sendWhatsAppBtn = el('sendWhatsApp');
   if (sendWhatsAppBtn) {
     sendWhatsAppBtn.addEventListener('click', function() {
       // This will be handled by menu.js
+      if (window.sendWhatsApp) {
+        window.sendWhatsApp();
+      }
     });
   }
+  
+  // Initial load: update payment panels
+  setTimeout(function() {
+    refreshPaymentPanels();
+    updateModalTable(); // Also update modal table on initial load
+  }, 500);
+  
+  // Override updateCartUI to also update modal table and payment panels
+  if (window.updateCartUI) {
+    const originalUpdateCartUI = window.updateCartUI;
+    window.updateCartUI = function() {
+      originalUpdateCartUI();
+      updateModalTable();
+      // Refresh payment panels if payment modal is open
+      if (el('paymentModal') && el('paymentModal').classList.contains('open')) {
+        refreshPaymentPanels();
+      }
+    };
+  }
+  
+  // Monitor when payment modal opens to auto-select Paystack
+  const paymentModal = el('paymentModal');
+  if (paymentModal) {
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.attributeName === 'class') {
+          if (paymentModal.classList.contains('open')) {
+            // Modal just opened, auto-select Paystack after a short delay
+            setTimeout(function() {
+              document.querySelectorAll(".payment-option").forEach(x => x.classList.remove("selected"));
+              const paystackOption = document.querySelector('.payment-option[data-method="paystack"]');
+              if (paystackOption) {
+                paystackOption.classList.add("selected");
+                window.selectedPayment = "paystack";
+                
+                // Hide all panels
+                ["paystack","mpesa","bank","cash"].forEach(m => {
+                  const detailsEl = el(m + "Details");
+                  if (detailsEl) detailsEl.classList.add("hidden");
+                });
+                
+                // Show Paystack panel
+                const paystackDetails = el("paystackDetails");
+                if (paystackDetails) paystackDetails.classList.remove("hidden");
+                
+                // Refresh amounts
+                refreshPaymentPanels();
+              }
+            }, 150);
+          }
+        }
+      });
+    });
+    
+    observer.observe(paymentModal, { attributes: true });
+  }
+  
+  // Expose helper functions for menu.js
+  window.refreshPaymentPanels = refreshPaymentPanels;
+  window.updateModalTable = updateModalTable;
+  
+  // Also expose a combined refresh function for menu.js to use
+  window.refreshAmountsInPaymentPanels = function() {
+    // Call our refresh function
+    refreshPaymentPanels();
+  };
 });
 </script>
 </body>
