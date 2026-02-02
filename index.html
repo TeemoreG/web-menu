@@ -733,7 +733,7 @@
       display: none;
     }
 
-    .mpesa-details {
+    .paystack-details {
       background: rgba(31, 111, 58, 0.05);
       border: 1px solid rgba(31, 111, 58, 0.15);
       border-radius: 10px;
@@ -741,7 +741,7 @@
       margin-bottom: 12px;
     }
 
-    .mpesa-row {
+    .paystack-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -761,6 +761,22 @@
 
     .copy-btn:hover {
       background: rgba(31, 111, 58, 0.2);
+    }
+
+    /* MPesa Manual Details */
+    .mpesa-details {
+      background: rgba(31, 111, 58, 0.05);
+      border: 1px solid rgba(31, 111, 58, 0.15);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mpesa-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
     }
 
     /* Success Screen */
@@ -1092,8 +1108,8 @@
       <div class="payment-options" id="paymentOptions">
         <div class="payment-option" data-method="paystack">
           <div class="icon">📱</div>
-          <div class="name">Pay with M-Pesa</div>
-          <div class="desc">Auto-pay on phone</div>
+          <div class="name">Paystack STK Push</div>
+          <div class="desc">Auto-pay via M-Pesa</div>
         </div>
 
         <div class="payment-option" data-method="mpesa">
@@ -1117,20 +1133,21 @@
 
       <!-- Paystack STK Push Payment Details -->
       <div class="payment-details hidden" id="paystackDetails">
-        <h4>Pay with M-Pesa (STK Push)</h4>
+        <h4>Pay with M-Pesa (STK Push via Paystack)</h4>
         
         <div style="margin:20px 0;">
-          <label for="paystackPhone" style="display:block; margin-bottom:8px; font-weight:600;">
-            M-Pesa Registered Phone
+          <label for="customerPhone" style="display:block; margin-bottom:8px; font-weight:600;">
+            M-Pesa Registered Phone Number
           </label>
           <input type="tel" 
-                 id="paystackPhone" 
+                 id="customerPhone" 
                  placeholder="2547XXXXXXXX"
                  class="phone-input"
                  value="2547"
+                 required
                  aria-describedby="phoneHelp">
           <p id="phoneHelp" style="font-size:12px; color:#666; margin-top:5px;">
-            You'll receive an M-Pesa prompt on this phone
+            You'll receive an M-Pesa STK Push prompt on this phone
           </p>
         </div>
         
@@ -1144,26 +1161,24 @@
             <strong id="paystackAmount">KES 0</strong>
           </div>
           <div style="display:flex; justify-content:space-between;">
-            <span>Reference:</span>
+            <span>Order Reference:</span>
             <strong id="paystackReference">GS-ORDER-</strong>
           </div>
         </div>
         
-        <div class="paystack-processing" id="paystackProcessing" style="display:none;">
-          <div class="spinner"></div>
-          <p>Sending payment request to your phone...</p>
-          <p style="font-size:12px;">Check your phone for M-Pesa PIN prompt</p>
-        </div>
-        
-        <button class="btn success large" id="initiatePaystack">
-          📱 Send Payment Request to Phone
-        </button>
-        
         <div class="whatsapp-forwarding">
           <p>
-            ✅ Order will automatically be sent to restaurant WhatsApp
+            ✅ After successful payment, order will automatically be sent to restaurant WhatsApp
           </p>
         </div>
+        
+        <button class="btn success large" id="paystackPayBtn">
+          📱 Pay with M-Pesa via Paystack
+        </button>
+        
+        <p style="font-size:12px; color:var(--muted2); margin-top:12px;">
+          <strong>How it works:</strong> Click the button above, enter your M-Pesa PIN on your phone when prompted, and your payment will be processed instantly.
+        </p>
       </div>
 
       <!-- MPesa Payment Details -->
@@ -1193,7 +1208,7 @@
         
         <div class="whatsapp-forwarding">
           <p>
-            ✅ After payment, order will auto-send to restaurant WhatsApp
+            ✅ After payment, click "I have paid" to send order to restaurant WhatsApp
           </p>
         </div>
         
@@ -1237,7 +1252,7 @@
         
         <div class="whatsapp-forwarding">
           <p>
-            ✅ After payment, order will auto-send to restaurant WhatsApp
+            ✅ After payment, click "I have sent" to send order to restaurant WhatsApp
           </p>
         </div>
 
@@ -1263,7 +1278,7 @@
         
         <div class="whatsapp-forwarding">
           <p>
-            ✅ Order will automatically be sent to restaurant WhatsApp
+            ✅ Click "Confirm Order" to send order to restaurant WhatsApp
           </p>
         </div>
         
@@ -1324,12 +1339,14 @@
   </div>
 </div>
 
-<!-- LOAD MENU.JS FIRST - This will handle menu display AND payment -->
+<!-- LOAD PAYSTACK SDK -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<!-- LOAD MENU.JS - This handles menu display AND payment -->
 <script src="menu.js"></script>
 
-<!-- ONLY the event listeners that connect the HTML to the menu.js functions -->
+<!-- Event listeners that connect the HTML to menu.js -->
 <script>
-// Simple event listeners that delegate to menu.js functions
 document.addEventListener('DOMContentLoaded', function() {
   // Open cart button
   const openCartBtn = document.getElementById('openCart');
@@ -1390,6 +1407,80 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
+  // Payment method selection
+  document.querySelectorAll(".payment-option").forEach(opt => {
+    opt.addEventListener("click", function(e) {
+      document.querySelectorAll(".payment-option").forEach(x => x.classList.remove("selected"));
+      this.classList.add("selected");
+      window.selectedPayment = this.dataset.method;
+      
+      // Show relevant panel
+      ["paystack","mpesa","bank","cash"].forEach(m => {
+        const detailsEl = document.getElementById(m + "Details");
+        if (detailsEl) detailsEl.classList.add("hidden");
+      });
+      const selectedDetails = document.getElementById(window.selectedPayment + "Details");
+      if (selectedDetails) selectedDetails.classList.remove("hidden");
+      
+      // Update amounts in displayed panel
+      if (window.refreshAmountsInPaymentPanels) {
+        window.refreshAmountsInPaymentPanels();
+      }
+    });
+  });
+  
+  // Paystack payment button
+  const paystackBtn = document.getElementById('paystackPayBtn');
+  if (paystackBtn) {
+    paystackBtn.addEventListener('click', function() {
+      if (window.initializePaystackPayment) {
+        window.initializePaystackPayment();
+      }
+    });
+  }
+  
+  // Copy buttons
+  document.addEventListener("click", function(e) {
+    const btn = e.target.closest(".copy-btn");
+    if (!btn) return;
+    
+    let v = btn.getAttribute("data-copy");
+    if (!v && btn.id === "copyMpesaRef") v = document.getElementById("mpesaRef")?.textContent || "";
+    if (!v && btn.id === "copyBankRef") v = document.getElementById("bankRef")?.textContent || "";
+    
+    if (v) {
+      navigator.clipboard.writeText(v || "").then(() => {
+        if (window.showToast) window.showToast("Copied to clipboard!");
+        btn.textContent = "Copied";
+        setTimeout(() => btn.textContent = "Copy", 1000);
+      }).catch(() => {
+        if (window.showToast) window.showToast("Failed to copy. Please copy manually.", "error");
+      });
+    }
+  });
+  
+  // Payment confirmation buttons
+  const confirmMpesa = document.getElementById('confirmMpesa');
+  if (confirmMpesa) {
+    confirmMpesa.addEventListener('click', function() {
+      // This will be handled by menu.js
+    });
+  }
+  
+  const confirmBank = document.getElementById('confirmBank');
+  if (confirmBank) {
+    confirmBank.addEventListener('click', function() {
+      // This will be handled by menu.js
+    });
+  }
+  
+  const confirmCash = document.getElementById('confirmCash');
+  if (confirmCash) {
+    confirmCash.addEventListener('click', function() {
+      // This will be handled by menu.js
+    });
+  }
+  
   // New order button
   const newOrderBtn = document.getElementById('newOrder');
   if (newOrderBtn) {
@@ -1398,6 +1489,14 @@ document.addEventListener('DOMContentLoaded', function() {
       if (window.clearCart) {
         window.clearCart();
       }
+    });
+  }
+  
+  // Send WhatsApp button
+  const sendWhatsAppBtn = document.getElementById('sendWhatsApp');
+  if (sendWhatsAppBtn) {
+    sendWhatsAppBtn.addEventListener('click', function() {
+      // This will be handled by menu.js
     });
   }
 });
